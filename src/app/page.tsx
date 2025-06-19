@@ -3,7 +3,7 @@
 import { useState } from "react"
 import DashboardHeader from "@/components/dashboard/Header"
 import RecipientGrid from "@/components/dashboard/RecipientGrid"
-
+import TransferPanel from "@/components/dashboard/TransferPanel"
 import type { Recipient } from "@/types/recipient"
 
 export default function Dashboard() {
@@ -51,15 +51,15 @@ export default function Dashboard() {
     },
   ])
 
-  // State untuk mengontrol visibility modal
+  //state buat nampilin modal
   const [showAddModal, setShowAddModal] = useState(false)
   const [showTransferModal, setShowTransferModal] = useState(false)
 
-  // Menghitung total amount dari semua recipients
+  // ngitung total amount dari semua recipients
   const totalAmount = recipients.reduce((sum, recipient) => sum + recipient.amount, 0)
 
   /**
-   * Handler untuk menambah recipient baru
+   * Handler buat menambah recipient baru
    * @param newRecipient - Data recipient baru yang akan ditambahkan
    */
   const handleAddRecipient = (newRecipient: Omit<Recipient, "id">) => {
@@ -72,7 +72,7 @@ export default function Dashboard() {
   }
 
   /**
-   * Handler untuk menghapus recipient
+   * Handler buat menghapus recipient
    * @param id - ID recipient yang akan dihapus
    */
   const handleRemoveRecipient = (id: string) => {
@@ -95,7 +95,15 @@ export default function Dashboard() {
           onAddClick={() => setShowAddModal(true)}
           onRemoveRecipient={handleRemoveRecipient}
         />
+
       </main>
+      <TransferPanel
+        totalAmount={totalAmount}
+        totalRecipients={recipients.length}
+        onTransferClick={() => setShowTransferModal(true)}
+      />
+
+      
 
     </div>
   )
