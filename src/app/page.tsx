@@ -5,7 +5,7 @@ import DashboardHeader from "@/components/dashboard/Header"
 import RecipientGrid from "@/components/dashboard/RecipientGrid"
 import TransferPanel from "@/components/dashboard/TransferPanel"
 import type { Recipient } from "@/types/recipient"
-
+import AddBeneficiaryModal from "@/components/modals/AddBeneficiaryModal"
 export default function Dashboard() {
   // State data yang menerima transfer 
   const [recipients, setRecipients] = useState<Recipient[]>([
@@ -102,6 +102,8 @@ export default function Dashboard() {
         totalRecipients={recipients.length}
         onTransferClick={() => setShowTransferModal(true)}
       />
+
+      {showAddModal && <AddBeneficiaryModal onClose={() => setShowAddModal(false)} onSave={handleAddRecipient}/>}
 
       
 
