@@ -7,5 +7,6 @@ export interface Recipient{
     account: string //no rekening
     amount: number// jumlah tf
     currency: string //mata uang (IDR, USD, dll)
+    localCurrency: string
 }
 

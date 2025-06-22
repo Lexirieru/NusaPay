@@ -13,15 +13,15 @@ import ModalOverlay from "./ModalOverlay"
  * - utawa pas dipencet +
  */
 
-interface AddBeneficiaryModalProps{
+interface BeneficiaryModalProps{
     recipient?: Recipient | null 
     onClose:() => void
     onSave: (recipient: Recipient | Omit<Recipient, "id">) => void
 }
 
-export default function AddBeneficiaryModal({recipient= null, onClose, onSave}: AddBeneficiaryModalProps){
+export default function BeneficiaryModal({recipient= null, onClose, onSave}: BeneficiaryModalProps){
     const isEditMode = recipient !== null
-    const submitButtonText = isEditMode? "Update" : "Save"
+    const submitButtonText = isEditMode? "Edit" : "Save"
     //state default buat form
     const [formData, setFormData] = useState({
         name: "",
@@ -39,7 +39,7 @@ export default function AddBeneficiaryModal({recipient= null, onClose, onSave}: 
             setFormData({
                 name: recipient.name,
                 currency: recipient.currency,
-                localCurrency: recipient.currency,
+                localCurrency: recipient.localCurrency,
                 bank: recipient.bank,
                 account: recipient.account,
                 amount: recipient.amount.toString(),
@@ -63,8 +63,8 @@ export default function AddBeneficiaryModal({recipient= null, onClose, onSave}: 
 
     //Hander buat submit + validasi input + save
     const handleSubmit = () =>{
-        //validasi (amountnya belum kutaruh)
-        if(!formData.name || !formData.bank || !formData.account){
+        //validasi 
+        if(!formData.name || !formData.bank || !formData.account || !formData.amount){
             alert("Please fill in all required fields")
             return
         }
@@ -75,7 +75,8 @@ export default function AddBeneficiaryModal({recipient= null, onClose, onSave}: 
                 bank: formData.bank,
                 account: formData.account,
                 amount: Number.parseFloat(formData.amount),
-                currency: formData.currency,                
+                currency: formData.currency,  
+                localCurrency: formData.localCurrency,              
             }
             onSave(updateRecipient)
         } else{
@@ -85,32 +86,33 @@ export default function AddBeneficiaryModal({recipient= null, onClose, onSave}: 
                 account: formData.account,
                 amount: Number.parseInt(formData.amount),
                 currency: formData.currency,
+                localCurrency: formData.localCurrency,
             }
             onSave(newRecipient)
         }
     }
 
-    const handleReset = () =>{
-        if(isEditMode && recipient){
-            setFormData({
-                name: recipient.name,
-                currency: recipient.currency,
-                localCurrency: recipient.currency,
-                bank : recipient.bank,
-                account: recipient.account,
-                amount: recipient.amount.toString(),
-            })
-        } else{
-            setFormData({
-                name: "",
-                currency: "",
-                localCurrency: "",
-                bank : "",
-                account: "",
-                amount: "",
-            })
-        }
-    }
+    // const handleReset = () =>{
+    //     if(isEditMode && recipient){
+    //         setFormData({
+    //             name: recipient.name,
+    //             currency: recipient.currency,
+    //             localCurrency: recipient.localCurrency,
+    //             bank : recipient.bank,
+    //             account: recipient.account,
+    //             amount: recipient.amount.toString(),
+    //         })
+    //     } else{
+    //         setFormData({
+    //             name: "",
+    //             currency: "",
+    //             localCurrency: "",
+    //             bank : "",
+    //             account: "",
+    //             amount: "",
+    //         })
+    //     }
+    // }
 
     return(
         <ModalOverlay onClose={onClose}>
@@ -160,6 +162,13 @@ export default function AddBeneficiaryModal({recipient= null, onClose, onSave}: 
                         placeholder="Type here"
                         
                     />
+                    <FormField
+                        label="Amount"
+                        value={formData.amount}
+                        onChange={(value) =>handelInputChange("amount", value)}
+                        placeholder="Type here"
+                        
+                    />
                     
 
                     {/* Price feed */}
@@ -169,16 +178,16 @@ export default function AddBeneficiaryModal({recipient= null, onClose, onSave}: 
 
                     <div className="flex space-x-3">
                         {/* Reset Button - hanya tampil di edit mode */}
-                        {isEditMode && (
+                        {/* {isEditMode && (
                             <Button onClick={handleReset} variant="outline" className="flex-1 btn-secondary" type="button">
                                 Reset
                             </Button>
-                        )}
+                        )} */}
 
                         {/* Submit Button */}
                         <Button
                             onClick={handleSubmit}
-                            className={`${isEditMode ? "flex-1" : "w-full"} btn-primary py-3 rounded-lg`}
+                            className={`${isEditMode ? "flex-1" : "w-full"} bg-cyan-500 hover:bg-cyan-400 py-3 rounded-lg`}
                         >
                             {submitButtonText}
                         </Button>

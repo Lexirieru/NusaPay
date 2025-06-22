@@ -23,7 +23,7 @@ export default function FormField({label, value, onChange, placeholder, type ="t
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
-                className="modal-input"
+                className="modal-input bg-white text-black"
                 required={required}>
             </Input>
         </div>
