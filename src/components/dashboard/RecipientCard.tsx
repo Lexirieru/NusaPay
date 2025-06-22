@@ -13,11 +13,18 @@ import type { Recipient } from "@/types/recipient"
 interface RecipientCardProps {
   recipient: Recipient
   onRemove: () => void
+  onClick: () => void
 }
 
-export default function RecipientCard({ recipient, onRemove }: RecipientCardProps) {
+export default function RecipientCard({ recipient, onRemove, onClick }: RecipientCardProps) {
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onRemove()
+  }
   return (
-    <div className=" backdrop-blur-sm rounded-2xl p-6 border border-white hover:border-cyan-400 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-400/10 group relative">
+    <div 
+      onClick={onClick}
+      className=" backdrop-blur-sm rounded-2xl p-6 border border-white hover:border-cyan-400 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-400/10 group relative">
       {/* Currency Badge */}
       <div className="absolute top-4 right-4">
         <span className="bg-cyan-500 text-black px-4 py-1 rounded-full text-sm font-extrabold">
@@ -27,7 +34,7 @@ export default function RecipientCard({ recipient, onRemove }: RecipientCardProp
 
       {/* Delete Button */}
       <button
-        onClick={onRemove}
+        onClick={handleDeleteClick}
         className="absolute top-4 right-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-1 hover:bg-red-500/20 rounded-lg"
       >
         <Trash2 className="w-5 h-5 text-red-400 hover:text-red-300" />

@@ -16,17 +16,22 @@ interface RecipientGridProps {
   recipients: Recipient[]
   onAddClick: () => void
   onRemoveRecipient: (id: string) => void
+  onRecipientClick: (recipient: Recipient) => void
 }
 
-export default function RecipientGrid({ recipients, onAddClick, onRemoveRecipient }: RecipientGridProps) {
+export default function RecipientGrid({ recipients, onAddClick, onRemoveRecipient, onRecipientClick }: RecipientGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {/* Render semua recipient cards */}
       {recipients.map((recipient) => (
-        <RecipientCard key={recipient.id} recipient={recipient} onRemove={() => onRemoveRecipient(recipient.id)} />
+        <RecipientCard 
+          key={recipient.id} 
+          recipient={recipient} 
+          onRemove={() => onRemoveRecipient(recipient.id)}
+          onClick ={() =>onRecipientClick(recipient)}
+        />
       ))}
 
-      {/* Add More Card */}
       <AddMoreCard onClick={onAddClick} />
     </div>
   )

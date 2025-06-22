@@ -5,7 +5,7 @@ import DashboardHeader from "@/components/dashboard/Header"
 import RecipientGrid from "@/components/dashboard/RecipientGrid"
 import TransferPanel from "@/components/dashboard/TransferPanel"
 import type { Recipient } from "@/types/recipient"
-import AddBeneficiaryModal from "@/components/modals/AddBeneficiaryModal"
+import BeneficiaryModal from "@/components/modals/BeneficiaryModal"
 export default function Dashboard() {
   // State data yang menerima transfer 
   const [recipients, setRecipients] = useState<Recipient[]>([
@@ -52,9 +52,9 @@ export default function Dashboard() {
   ])
 
   //state buat nampilin modal
-  const [showAddModal, setShowAddModal] = useState(false)
+  const [showBeneficiaryModal, setShowBeneficiaryModal] = useState(false)
+  const [editingRecipient, setEditingRecipient] = useState<Recipient | null>(null)
   const [showTransferModal, setShowTransferModal] = useState(false)
-
   // ngitung total amount dari semua recipients
   const totalAmount = recipients.reduce((sum, recipient) => sum + recipient.amount, 0)
 
@@ -68,7 +68,17 @@ export default function Dashboard() {
       ...newRecipient,
     }
     setRecipients([...recipients, recipient])
-    setShowAddModal(false)
+    setShowBeneficiaryModal(false)
+  }
+
+  /**
+   * Handler buat menambah recipient baru
+   * @param updatedRecipient - Data recipient yang diupdate/edit
+   */
+  const handleEditRecipient = (updatedRecipient: Recipient) =>{
+    setRecipients(recipients.map((r) => (r.id === updatedRecipient.id? updatedRecipient : r)))
+    setShowBeneficiaryModal(false)
+    setEditingRecipient(null)
   }
 
   /**
@@ -77,6 +87,30 @@ export default function Dashboard() {
    */
   const handleRemoveRecipient = (id: string) => {
     setRecipients(recipients.filter((recipient) => recipient.id !== id))
+  }
+
+  const handleAddClick = () => {
+    setEditingRecipient(null)
+    setShowBeneficiaryModal(true)
+  }
+
+  const handleRecipientClick = (recipient: Recipient) =>{
+    setEditingRecipient(recipient)
+    setShowBeneficiaryModal(true)
+  }
+
+  const handleCloseBeneficiaryModal = () =>{
+    setShowBeneficiaryModal(false)
+    setEditingRecipient(null)
+  }
+
+  const handleSaveBeneficiary = (recipientData: Recipient | Omit<Recipient, "id">) => {
+    if("id" in recipientData){
+      //ada id = ngedit
+      handleEditRecipient(recipientData as Recipient)
+    }else{
+      handleAddRecipient(recipientData as Omit<Recipient, "id">)
+    }
   }
 
   return (
@@ -92,8 +126,9 @@ export default function Dashboard() {
         {/* Grid untuk menampilkan recipient cards */}
         <RecipientGrid
           recipients={recipients}
-          onAddClick={() => setShowAddModal(true)}
+          onAddClick={handleAddClick}
           onRemoveRecipient={handleRemoveRecipient}
+          onRecipientClick={handleRecipientClick}
         />
 
       </main>
@@ -103,8 +138,13 @@ export default function Dashboard() {
         onTransferClick={() => setShowTransferModal(true)}
       />
 
-      {showAddModal && <AddBeneficiaryModal onClose={() => setShowAddModal(false)} onSave={handleAddRecipient}/>}
-
+      {showBeneficiaryModal && (
+        <BeneficiaryModal
+          recipient={editingRecipient}
+          onClose={handleCloseBeneficiaryModal}
+          onSave={handleSaveBeneficiary}  
+        />
+      )}
       
 
     </div>
