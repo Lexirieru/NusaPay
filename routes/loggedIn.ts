@@ -1,4 +1,6 @@
 import express, { RequestHandler } from "express";
+import { checkAuth } from "../middleware/checkAuth";
+
 import {
   addPayrollData,
   addPayrollDetailsData,
@@ -8,11 +10,16 @@ import {
 
 import {
   addEmployeeData,
+  editEmployeeData,
+  loadEmployeeData,
   addGroupOfEmployee,
+  editGroupOfEmployee,
   loadGroupOfEmployee,
 } from "../controllers/companyController";
 
 const router = express.Router();
+
+router.use(checkAuth.isAuthenticated);
 
 type RouteMethod = "get" | "post" | "put" | "delete";
 
@@ -23,6 +30,7 @@ type RouteDefinition = {
 };
 
 const routes: RouteDefinition[] = [
+  // Payroll data
   {
     method: "post",
     path: "/addPayrollData",
@@ -33,25 +41,47 @@ const routes: RouteDefinition[] = [
     path: "/loadPayrollData",
     action: loadPayrollData,
   },
-  {
-    method: "get",
-    path: "/loadPayrollDetailsData",
-    action: loadPayrollDetailsData,
-  },
+
+  // Payroll details data
   {
     method: "post",
     path: "/addPayrollDetailsData",
     action: addPayrollDetailsData,
   },
   {
+    method: "get",
+    path: "/loadPayrollDetailsData",
+    action: loadPayrollDetailsData,
+  },
+  // Employee Data
+  {
     method: "post",
     path: "/addEmployeeData",
     action: addEmployeeData,
   },
+
+  {
+    method: "post",
+    path: "/editEmployeeData",
+    action: editEmployeeData,
+  },
+
+  {
+    method: "get",
+    path: "/loadEmployeeData",
+    action: loadEmployeeData,
+  },
+
+  // Group of employee data
   {
     method: "post",
     path: "/addGroupOfEmployee",
     action: addGroupOfEmployee,
+  },
+  {
+    method: "post",
+    path: "/editGroupOfEmployee",
+    action: editGroupOfEmployee,
   },
   {
     method: "get",

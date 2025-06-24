@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
 import { PayrollModel, PayrollDetailModel } from "../models/payrollModel"; // Pastikan path-nya benar
 import mongoose from "mongoose";
+
 export async function addPayrollData(req: Request, res: Response) {
   const {
-    companyAccount,
+    companyId,
+    companyName,
     companyWalletAddress,
     status,
     totalAmount,
@@ -12,7 +14,8 @@ export async function addPayrollData(req: Request, res: Response) {
 
   try {
     const newPayroll = new PayrollModel({
-      companyAccount,
+      companyId,
+      companyName,
       companyWalletAddress,
       status,
       totalAmount,
@@ -33,10 +36,10 @@ export async function addPayrollData(req: Request, res: Response) {
 }
 
 export async function loadPayrollData(req: Request, res: Response) {
-  const { companyAccount } = req.body;
+  const { companyId } = req.body;
   try {
     // Ambil 5 data terbaru berdasarkan timestamp (atau bisa juga pakai _id)
-    const latestPayrolls = await PayrollModel.find({ companyAccount })
+    const latestPayrolls = await PayrollModel.find({ companyId })
       .sort({ timestamp: -1 }) // descending (terbaru di atas)
       .limit(5)
       .lean(); // supaya hasilnya plain JS object dan lebih cepat
@@ -55,7 +58,8 @@ export async function loadPayrollData(req: Request, res: Response) {
 
 export async function addPayrollDetailsData(req: Request, res: Response) {
   const {
-    companyAccount,
+    companyId,
+    companyName,
     // payrollId ambil dari _id nya PayrollData
     payrollId,
     walletAddress,
@@ -71,7 +75,8 @@ export async function addPayrollDetailsData(req: Request, res: Response) {
 
   try {
     const newPayrollDetail = new PayrollDetailModel({
-      companyAccount,
+      companyId,
+      companyName,
       payrollId,
       walletAddress,
       networkChainId,
@@ -99,10 +104,10 @@ export async function addPayrollDetailsData(req: Request, res: Response) {
 
 export async function loadPayrollDetailsData(req: Request, res: Response) {
   // Loadnya berdasarkan id unique yang di generate sama mongodb
-  const { id } = req.body;
+  const { _id } = req.body;
 
   try {
-    const ObjectId = new mongoose.Types.ObjectId(id); // konversi ke ObjectId
+    const ObjectId = new mongoose.Types.ObjectId(_id); // konversi ke ObjectId
     // Ambil 5 data terbaru berdasarkan timestamp (atau bisa juga pakai _id)
     const latestPayrolls = await PayrollDetailModel.find({
       payrollId: ObjectId,

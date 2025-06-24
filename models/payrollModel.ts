@@ -3,7 +3,11 @@ import mongoose, { Schema } from "mongoose";
 const PayrollSchema = new Schema(
   {
     // Company mana yang ngelakuin payroll ini
-    companyAccount: {
+    companyId: {
+      type: String,
+      required: true,
+    },
+    companyName: {
       type: String,
       required: true,
     },
@@ -33,8 +37,12 @@ export const PayrollModel = mongoose.model("Payroll", PayrollSchema);
 
 const PayrollDetailSchema = new Schema(
   {
-    companyAccount: {
-      type: String, // ID referensi ke Payroll
+    companyId: {
+      type: String,
+      required: true,
+    },
+    companyName: {
+      type: String,
       required: true,
     },
     payrollId: {

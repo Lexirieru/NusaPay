@@ -2,8 +2,12 @@ import mongoose, { Schema } from "mongoose";
 
 const EmployeeDataSchema = new Schema(
   {
-    // Company mana yang punya employee ini
-    companyAccount: {
+    // Company mana yang punya employee ini,
+    companyId: {
+      type: String,
+      required: true,
+    },
+    companyName: {
       type: String,
       required: true,
     },
@@ -45,17 +49,24 @@ export const EmployeeModel = mongoose.model("EmployeeData", EmployeeDataSchema);
 
 const GroupOfEmployeeSchema = new Schema(
   {
-    // Company mana yang punya group of employee ini
-    companyAccount: {
+    companyId: {
       type: String,
       required: true,
     },
+    companyName: {
+      type: String,
+      required: true,
+    },
+
     nameOfGroup: {
       type: String,
       required: true,
     },
     employees: [
       {
+        // id untuk employees ini bakal udah auto ke generate
+        // karena sebelum bisa mbuat group, harus buat data karyawannya
+        // masing masing terlebih dahulu
         id: {
           type: Schema.Types.ObjectId,
           ref: "EmployeeData",
