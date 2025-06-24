@@ -14,6 +14,16 @@
                 "internalType": "address"
             },
             {
+                "name": "_networkChainId",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
+                "name": "_walletAddress",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
                 "name": "_amount",
                 "type": "uint256",
                 "internalType": "uint256"
@@ -24,12 +34,17 @@
                 "internalType": "string"
             },
             {
+                "name": "_bankCode",
+                "type": "string",
+                "internalType": "string"
+            },
+            {
                 "name": "_bankName",
                 "type": "string",
                 "internalType": "string"
             },
             {
-                "name": "_walletAddress",
+                "name": "_bankAccountName",
                 "type": "string",
                 "internalType": "string"
             }
@@ -60,6 +75,18 @@
                 "internalType": "address"
             },
             {
+                "name": "networkChainId",
+                "type": "string",
+                "indexed": false,
+                "internalType": "string"
+            },
+            {
+                "name": "walletAddress",
+                "type": "string",
+                "indexed": false,
+                "internalType": "string"
+            },
+            {
                 "name": "amount",
                 "type": "uint256",
                 "indexed": false,
@@ -72,13 +99,19 @@
                 "internalType": "string"
             },
             {
+                "name": "bankCode",
+                "type": "string",
+                "indexed": false,
+                "internalType": "string"
+            },
+            {
                 "name": "bankName",
                 "type": "string",
                 "indexed": false,
                 "internalType": "string"
             },
             {
-                "name": "walletAddress",
+                "name": "bankAccountName",
                 "type": "string",
                 "indexed": false,
                 "internalType": "string"
