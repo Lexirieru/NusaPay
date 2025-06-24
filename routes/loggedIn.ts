@@ -1,5 +1,16 @@
 import express, { RequestHandler } from "express";
-import { listenToPayrollEvents } from "../controllers/eventListenerController";
+import {
+  addPayrollData,
+  addPayrollDetailsData,
+  loadPayrollData,
+  loadPayrollDetailsData,
+} from "../controllers/transactionController";
+
+import {
+  addEmployeeData,
+  addGroupOfEmployee,
+  loadGroupOfEmployee,
+} from "../controllers/companyController";
 
 const router = express.Router();
 
@@ -13,12 +24,40 @@ type RouteDefinition = {
 
 const routes: RouteDefinition[] = [
   {
+    method: "post",
+    path: "/addPayrollData",
+    action: addPayrollData,
+  },
+  {
     method: "get",
-    path: "/listenToPayrollEvents",
-    action: listenToPayrollEvents,
-  }, //V // ngeshow semua task yang ada dan blom completed
-  // { method: 'post', path: '/uploadPhotoAndFoodComponent', middlewares : [upload.single('photo')], action: uploadPhotoAndFoodComponentToDatabase}, //V // ngeshow semua task yang ada dan blom completed
-  // { method: 'post', path: '/sendScannedPhotoResult', middlewares : [upload.single('photo')], action: sendScannedPhotoResult}, //V // ngeshow semua task yang ada dan blom completed
+    path: "/loadPayrollData",
+    action: loadPayrollData,
+  },
+  {
+    method: "get",
+    path: "/loadPayrollDetailsData",
+    action: loadPayrollDetailsData,
+  },
+  {
+    method: "post",
+    path: "/addPayrollDetailsData",
+    action: addPayrollDetailsData,
+  },
+  {
+    method: "post",
+    path: "/addEmployeeData",
+    action: addEmployeeData,
+  },
+  {
+    method: "post",
+    path: "/addGroupOfEmployee",
+    action: addGroupOfEmployee,
+  },
+  {
+    method: "get",
+    path: "/loadGroupOfEmployee",
+    action: loadGroupOfEmployee,
+  },
 ];
 
 routes.forEach((route) => {
