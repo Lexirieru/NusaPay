@@ -7,7 +7,17 @@ import TransferPanel from "@/components/dashboard/TransferPanel"
 import type { Recipient } from "@/types/recipient"
 import BeneficiaryModal from "@/components/modals/BeneficiaryModal"
 import AddTemplateModal from "@/components/modals/AddTemplateModal"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog"
 import type { Template } from "@/lib/template"
+import { AlertDialogDescription } from "@radix-ui/react-alert-dialog"
 export default function Dashboard() {
   
   //state buat templates
@@ -19,8 +29,9 @@ export default function Dashboard() {
   const [showBeneficiaryModal, setShowBeneficiaryModal] = useState(false)
   const [editingRecipient, setEditingRecipient] = useState<Recipient | null>(null)
   const [showTemplateModal, setShowTemplateModal] = useState(false)
-  const [showTransferModal, setShowTransferModal] = useState(false)
-
+  const [showTransferAlert, setShowTransferAlert] = useState(false)
+  const [showProcessingModal, setShowProcessingModal] = useState(false)
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false)
   useEffect(() => {
     const defaultTemplates: Template[] = [
       {
@@ -205,6 +216,16 @@ export default function Dashboard() {
     }
   }
 
+  const handleConfirmTransfer = () => {
+    setShowTransferAlert(false)
+    setShowProcessingModal(true)
+  }
+
+  const handleProcessingComplete = () =>{
+    setShowProcessingModal(false)
+    setShowInvoiceModal(true)
+  }
+
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
      
@@ -251,9 +272,22 @@ export default function Dashboard() {
         <TransferPanel
           totalAmount={totalAmount}
           totalRecipients={currentTemplate.recipients.length}
-          onTransferClick={() => setShowTransferModal(true)}
+          onTransferClick={() => setShowTransferAlert(true)}
         />
       )}
+
+      {/*Transfer Confirmation Alert */}
+      <AlertDialog open={showTransferAlert} onOpenChange={setShowTransferAlert}>
+        <AlertDialogContent className="backdrop-blur-sm border-white/55 rounded-2xl bg-transparent">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white justify-center flex font-bold">Are You Sure To Transfer To {currentTemplate?.name}?</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogFooter >
+            <AlertDialogCancel className="text-cyan-400 ">Cancel</AlertDialogCancel>
+            <AlertDialogAction className="bg-cyan-400" onClick={handleConfirmTransfer}>Confirm</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Beneficiary Modal */}
       {showBeneficiaryModal && (

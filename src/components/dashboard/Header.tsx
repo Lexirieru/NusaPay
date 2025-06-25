@@ -3,7 +3,6 @@ import DropdownItem from "./Dropdown"
 import { useState } from "react"
 import { ChevronDown } from "lucide-react"
 import type { Template } from "@/lib/template"
-import { Plus } from "lucide-react"
 
 interface DashboardHeaderProps{
     templates: Template[]
