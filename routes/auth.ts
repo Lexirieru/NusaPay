@@ -1,169 +1,119 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import express, { Request, Response, Router } from "express";
 import passport from "passport";
-import bcrypt from "bcrypt";
-import crypto from "crypto";
 import { Strategy as GoogleStrategy, Profile } from "passport-google-oauth20";
-import { validationResult } from "express-validator";
-import { userModel } from "../models/userModel"; // pastikan path ini benar
-import checkAuth from "../middleware/checkAuth"; // pastikan path ini benar
+import { CompanyDataModel } from "../models/companyModel";
+import { generateToken } from "../config/generateToken";
 
 const router: Router = express.Router();
 
-// ----------- CHECK AUTH -----------
+// CHECK AUTH STATUS
 router.get("/check-auth", (req: Request, res: Response) => {
-  res.header(
-    "Access-Control-Allow-Origin",
-    process.env.FRONTEND_URL || "http://localhost:5173"
-  );
+  res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL || "");
   res.header("Access-Control-Allow-Credentials", "true");
 
-  if (res.locals.isAuthenticated) {
+  if (req.isAuthenticated()) {
     res.status(200).json({ authenticated: true });
   } else {
     res.status(401).json({ authenticated: false });
   }
 });
 
-// ----------- REGISTER USER -----------
-router.post("/register", async (req: Request, res: Response) => {
-  try {
-    const { email, password, ...rest } = req.body;
-
-    const duplicate = await userModel.findOne({ email });
-    if (duplicate) {
-      return res.status(400).json({ message: "Email sudah terdaftar!" });
-    }
-
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const hash = await bcrypt.hash(password, 13);
-    const newUser = await userModel.create({ email, password: hash, ...rest });
-
-    res.status(201).json({
-      message: "Akun berhasil dibuat",
-      user: newUser,
-    });
-  } catch (error: any) {
-    res
-      .status(500)
-      .json({
-        message: "Terjadi kesalahan saat registrasi",
-        error: error.message,
-      });
-  }
-});
-
-// ----------- GOOGLE STRATEGY -----------
+// GOOGLE STRATEGY
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-      callbackURL: process.env.CALLBACK_URL || "/api/auth/google/callback",
+      clientSecret: process.env.GOOGLE_CLIENT_SERVER || "",
+      callbackURL: process.env.CALLBACK_URL || "/auth/google/callback",
       passReqToCallback: true,
     },
-    async (
+    async function (
       req: Request,
       accessToken: string,
       refreshToken: string,
       profile: Profile,
       done
-    ) => {
+    ) {
       try {
-        const existingUser = await userModel.findOne({ google_id: profile.id });
+        const existingUser = await CompanyDataModel.findOne({
+          google_id: profile.id,
+        });
 
         if (existingUser) {
           return done(null, existingUser);
+        } else {
+          const newUser = await CompanyDataModel.create({
+            google_id: profile.id,
+            nama: profile.displayName,
+            email: profile.emails?.[0]?.value,
+          });
+          return done(null, newUser);
         }
-
-        const userData = {
-          google_id: profile.id,
-          nama: profile.displayName,
-          email: profile.emails?.[0]?.value,
-        };
-
-        const createdUsers = await userModel.insertMany([userData]);
-        return done(null, createdUsers[0]);
-      } catch (error) {
-        return done(error as Error);
+      } catch (err) {
+        return done(err as Error);
       }
     }
   )
 );
 
-passport.serializeUser((user: Express.User, done) => {
+passport.serializeUser((user, done) => {
   done(null, user);
 });
 
-passport.deserializeUser((user: Express.User, done) => {
-  done(null, user);
+passport.deserializeUser((user, done) => {
+  done(null, user!);
 });
 
-// ----------- GOOGLE LOGIN ROUTES -----------
+// GOOGLE AUTH ENDPOINT
 router.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["email", "profile"] })
 );
 
+// GOOGLE CALLBACK
 router.get(
   "/google/callback",
   passport.authenticate("google", { session: true }),
   async (req: Request, res: Response) => {
     const user = req.user as any;
 
-    if (!user) return res.status(400).json({ message: "Login gagal" });
+    const email = user?.email ?? user?.emails?.[0]?.value;
 
-    res.status(200).json({
-      message: "Berhasil login dengan Google",
-      user,
-    });
+    if (email) {
+      // ambil user terbaru
+      const found = await CompanyDataModel.findOne({ email });
+
+      const userToUse = found ?? user;
+
+      const token = generateToken({
+        id: userToUse._id?.toString(),
+        email: userToUse.email,
+      });
+
+      res.cookie("user_session", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 1 hari
+      });
+
+      res.redirect(`${process.env.FRONTEND_URL}/auth/success`);
+    } else {
+      res.redirect(`${process.env.FRONTEND_URL}/auth/error`);
+    }
   }
 );
 
-// ----------- MANUAL LOGIN -----------
-router.post("/login", async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-
-  const userAccount = await userModel.findOne({ email });
-  if (!userAccount) {
-    return res
-      .status(404)
-      .json({ message: "Akun tidak ditemukan, silakan coba lagi" });
-  }
-
-  const isValid = await bcrypt.compare(password, userAccount.password);
-  if (!isValid) {
-    return res.status(400).json({ message: "Password salah" });
-  }
-
-  req.session.user = {
-    id: crypto.randomUUID(),
-    email,
-  };
-
-  res.status(200).json({
-    message: "Berhasil masuk ke akun",
-    user: userAccount,
-  });
-});
-
-// ----------- LOGOUT USER -----------
+// LOGOUT
 router.post("/logout", (req: Request, res: Response) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({ message: "Logout gagal" });
-    }
+  req.logout((err) => {
+    if (err) return res.status(500).json({ message: "Logout gagal" });
 
-    res.clearCookie("connect.sid");
-    res.locals.isAuthenticated = undefined;
-    res.status(200).json({ message: "Logout sukses" });
+    req.session.destroy(() => {
+      res.clearCookie("connect.sid");
+      res.clearCookie("user_session");
+      res.status(200).json({ message: "Logout sukses" });
+    });
   });
 });
-
 export default router;

@@ -1,9 +1,13 @@
-import { Request, Response } from "express";
-// middleware untuk ngeamanin halaman halaman yang user harus terautentikasi dlu untuk ngakses halaman-halamannya
-export function isAuthenticated(req: Request, res: Response, next) {
-  if (req.session.user) {
-    next(); // User sudah login, lanjutkan ke handler berikutnya
+import { Request, Response, NextFunction, RequestHandler } from "express";
+
+export const isAuthenticated: RequestHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.isAuthenticated()) {
+    next();
   } else {
-    res.redirect("/login");
+    res.status(401).json({ message: "Unauthorized" });
   }
-}
+};

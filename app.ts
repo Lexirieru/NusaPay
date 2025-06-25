@@ -8,6 +8,8 @@ import express from "express";
 import methodOverride from "method-override";
 import cors from "cors";
 import loggedInRoutes from "./routes/loggedIn";
+import session from "express-session";
+import passport from "passport";
 
 const app = express();
 connectDB();
@@ -15,6 +17,22 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(methodOverride("_method")); //  buat munculin UPDATE dan DELETE
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "somesecret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: false,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    },
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 // app.use((req, res, next) => {
 //     if (process.env.NODE_ENV === 'production' && !req.secure) {

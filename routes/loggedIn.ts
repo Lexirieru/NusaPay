@@ -1,5 +1,5 @@
 import express, { RequestHandler } from "express";
-import { checkAuth } from "../middleware/checkAuth";
+import { isAuthenticated } from "../middleware/checkAuth";
 
 import {
   addPayrollData,
@@ -19,7 +19,7 @@ import {
 
 const router = express.Router();
 
-router.use(checkAuth.isAuthenticated);
+router.use("/user", isAuthenticated);
 
 type RouteMethod = "get" | "post" | "put" | "delete";
 
