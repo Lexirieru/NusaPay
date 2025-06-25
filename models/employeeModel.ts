@@ -4,7 +4,7 @@ const EmployeeDataSchema = new Schema(
   {
     // Company mana yang punya employee ini,
     companyId: {
-      type: String,
+      type: Schema.Types.ObjectId,
       required: true,
     },
     companyName: {
@@ -50,7 +50,7 @@ export const EmployeeModel = mongoose.model("EmployeeData", EmployeeDataSchema);
 const GroupOfEmployeeSchema = new Schema(
   {
     companyId: {
-      type: String,
+      type: Schema.Types.ObjectId,
       required: true,
     },
     companyName: {

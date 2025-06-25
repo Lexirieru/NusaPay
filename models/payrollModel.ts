@@ -4,7 +4,7 @@ const PayrollSchema = new Schema(
   {
     // Company mana yang ngelakuin payroll ini
     companyId: {
-      type: String,
+      type: Schema.Types.ObjectId,
       required: true,
     },
     companyName: {
@@ -38,7 +38,7 @@ export const PayrollModel = mongoose.model("Payroll", PayrollSchema);
 const PayrollDetailSchema = new Schema(
   {
     companyId: {
-      type: String,
+      type: Schema.Types.ObjectId,
       required: true,
     },
     companyName: {

@@ -15,6 +15,8 @@ import {
   addGroupOfEmployee,
   editGroupOfEmployee,
   loadGroupOfEmployee,
+  addOrUpdateCompanyStats,
+  addOrUpdateCompanyData,
 } from "../controllers/companyController";
 
 const router = express.Router();
@@ -87,6 +89,17 @@ const routes: RouteDefinition[] = [
     method: "get",
     path: "/loadGroupOfEmployee",
     action: loadGroupOfEmployee,
+  },
+
+  {
+    method: "post",
+    path: "/addOrUpdateCompanyStats",
+    action: addOrUpdateCompanyStats,
+  },
+  {
+    method: "post",
+    path: "/addOrUpdateCompanyData",
+    action: addOrUpdateCompanyData,
   },
 ];
 

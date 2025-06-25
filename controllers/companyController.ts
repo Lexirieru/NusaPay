@@ -1,5 +1,39 @@
 import { Request, Response } from "express";
 import { EmployeeModel, GroupOfEmployeeData } from "../models/employeeModel"; // Pastikan path-nya benar
+import { CompanyDataModel, CompanyStatsModel } from "../models/companyModel";
+
+// untuk form ngemasukkin companyName, nyambungin wallet dan networkchainnya setelah berhasil login pake googleoauth20
+export async function addOrUpdateCompanyData(req: Request, res: Response) {
+  const { companyId, companyName, walletAddress, networkChainId } = req.body;
+
+  try {
+    const companyData = await CompanyDataModel.findByIdAndUpdate(
+      companyId,
+      {
+        companyName,
+        walletAddress,
+        networkChainId,
+      },
+      { new: true }
+    );
+
+    if (!companyData) {
+      res.status(404).json({
+        message: "Company not found",
+      });
+    }
+
+    res.status(201).json({
+      message: "Company data successfully edited",
+      payroll: companyData,
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      message: "Error editing company data",
+      error: err.message,
+    });
+  }
+}
 
 export async function addEmployeeData(req: Request, res: Response) {
   // bankCode dari FE harus bisa nge enum sesuai dengan bankAccountnya
@@ -183,6 +217,89 @@ export async function loadGroupOfEmployee(req: Request, res: Response) {
   } catch (err: any) {
     res.status(500).json({
       message: "Error sending group of employee",
+      error: err.message,
+    });
+  }
+}
+
+export async function addOrUpdateCompanyStats(req: Request, res: Response) {
+  const {
+    companyId,
+    totalPayrollExecuted,
+    totalBurnExecuted,
+    totalRedeemed,
+    totalEmployeeRegistered,
+    totalGroups,
+    totalIDRXBurned,
+    totalIDRXRedeemed,
+    averageEmployeesPerGroup,
+  } = req.body;
+
+  try {
+    // Cek apakah stats sudah ada untuk companyId tersebut
+    let stats = await CompanyStatsModel.findOne({ companyId });
+
+    if (!stats) {
+      // Buat baru jika belum ada
+      stats = new CompanyStatsModel({
+        companyId,
+        totalPayrollExecuted: totalPayrollExecuted || 0,
+        totalBurnExecuted: totalBurnExecuted || 0,
+        totalRedeemed: totalRedeemed || 0,
+        totalEmployeeRegistered: totalEmployeeRegistered || 0,
+        totalGroups: totalGroups || 0,
+        totalIDRXBurned: totalIDRXBurned || 0,
+        totalIDRXRedeemed: totalIDRXRedeemed || 0,
+        averageEmployeesPerGroup: averageEmployeesPerGroup || 0,
+      });
+    } else {
+      // Update data yang dikirim (jika ada)
+      if (typeof totalPayrollExecuted === "number") {
+        stats.totalPayrollExecuted =
+          (stats.totalPayrollExecuted || 0) + totalPayrollExecuted;
+      }
+
+      if (typeof totalBurnExecuted === "number") {
+        stats.totalBurnExecuted =
+          (stats.totalBurnExecuted || 0) + totalBurnExecuted;
+      }
+
+      if (typeof totalRedeemed === "number") {
+        stats.totalRedeemed = (stats.totalRedeemed || 0) + totalRedeemed;
+      }
+
+      if (typeof totalEmployeeRegistered === "number") {
+        stats.totalEmployeeRegistered =
+          (stats.totalEmployeeRegistered || 0) + totalEmployeeRegistered;
+      }
+
+      if (typeof totalGroups === "number") {
+        stats.totalGroups = (stats.totalGroups || 0) + totalGroups;
+      }
+
+      if (typeof totalIDRXBurned === "number") {
+        stats.totalIDRXBurned = (stats.totalIDRXBurned || 0) + totalIDRXBurned;
+      }
+
+      if (typeof totalIDRXRedeemed === "number") {
+        stats.totalIDRXRedeemed =
+          (stats.totalIDRXRedeemed || 0) + totalIDRXRedeemed;
+      }
+
+      if (typeof averageEmployeesPerGroup === "number") {
+        stats.averageEmployeesPerGroup = averageEmployeesPerGroup;
+      }
+    }
+
+    await stats.save();
+
+    res.status(200).json({
+      message: "Company stats successfully updated",
+      stats,
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      message: "Error updating company stats",
       error: err.message,
     });
   }

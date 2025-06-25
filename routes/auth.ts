@@ -23,8 +23,8 @@ passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SERVER || "",
-      callbackURL: process.env.CALLBACK_URL || "/auth/google/callback",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      callbackURL: process.env.CALLBACK_URL || "/google/callback",
       passReqToCallback: true,
     },
     async function (
@@ -35,19 +35,19 @@ passport.use(
       done
     ) {
       try {
-        const existingUser = await CompanyDataModel.findOne({
-          google_id: profile.id,
+        const existingCompany = await CompanyDataModel.findOne({
+          companyId: profile.id,
         });
 
-        if (existingUser) {
-          return done(null, existingUser);
+        if (existingCompany) {
+          return done(null, existingCompany);
         } else {
-          const newUser = await CompanyDataModel.create({
-            google_id: profile.id,
-            nama: profile.displayName,
+          const newCompany = await CompanyDataModel.create({
+            companyId: profile.id,
             email: profile.emails?.[0]?.value,
+            // companyName: profile.displayName,
           });
-          return done(null, newUser);
+          return done(null, newCompany);
         }
       } catch (err) {
         return done(err as Error);
@@ -97,7 +97,7 @@ router.get(
         maxAge: 30 * 24 * 60 * 60 * 1000, // 1 hari
       });
 
-      res.redirect(`${process.env.FRONTEND_URL}/auth/success`);
+      res.redirect(`${process.env.FRONTEND_URL}/`);
     } else {
       res.redirect(`${process.env.FRONTEND_URL}/auth/error`);
     }
@@ -110,7 +110,6 @@ router.post("/logout", (req: Request, res: Response) => {
     if (err) return res.status(500).json({ message: "Logout gagal" });
 
     req.session.destroy(() => {
-      res.clearCookie("connect.sid");
       res.clearCookie("user_session");
       res.status(200).json({ message: "Logout sukses" });
     });

@@ -10,6 +10,7 @@ import cors from "cors";
 import loggedInRoutes from "./routes/loggedIn";
 import session from "express-session";
 import passport from "passport";
+import authRoutes from "./routes/auth";
 
 const app = express();
 connectDB();
@@ -41,6 +42,7 @@ app.use(passport.session());
 //     next();
 // });
 
+app.use("/", authRoutes);
 app.use("/", loggedInRoutes);
 
 //handle semua endpoint yang gaada untuk menampilkan 404 not found page
