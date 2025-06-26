@@ -14,7 +14,12 @@ import authRoutes from "./routes/auth";
 
 const app = express();
 connectDB();
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:3000", // Ganti dengan URL frontend Anda
+    credentials: true, // Izinkan cookie untuk dikirim bersama permintaan
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(methodOverride("_method")); //  buat munculin UPDATE dan DELETE

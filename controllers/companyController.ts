@@ -79,7 +79,6 @@ export async function addEmployeeData(req: Request, res: Response) {
 export async function editEmployeeData(req: Request, res: Response) {
   const {
     _id,
-    name,
     bankCode,
     bankAccount,
     bankAccountName,
@@ -92,7 +91,6 @@ export async function editEmployeeData(req: Request, res: Response) {
     const employeeData = await EmployeeModel.findByIdAndUpdate(
       _id,
       {
-        name,
         bankCode,
         bankAccount,
         bankAccountName,

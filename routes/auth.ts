@@ -3,19 +3,23 @@ import passport from "passport";
 import { Strategy as GoogleStrategy, Profile } from "passport-google-oauth20";
 import { CompanyDataModel } from "../models/companyModel";
 import { generateToken } from "../config/generateToken";
+import { verifyToken } from "../middleware/checkTokenAuthentication";
 
 const router: Router = express.Router();
 
 // CHECK AUTH STATUS
-router.get("/check-auth", (req: Request, res: Response) => {
-  res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL || "");
-  res.header("Access-Control-Allow-Credentials", "true");
+// check auth
 
-  if (req.isAuthenticated()) {
-    res.status(200).json({ authenticated: true });
-  } else {
-    res.status(401).json({ authenticated: false });
-  }
+router.get("/check-auth", verifyToken, (req: Request, res: Response) => {
+  const user = (req as any).user;
+  res.json({
+    authenticated: true,
+    user: {
+      id: user._id,
+      email: user.email,
+      companyName: user.companyName || null,
+    },
+  });
 });
 
 // GOOGLE STRATEGY

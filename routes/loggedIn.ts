@@ -21,7 +21,7 @@ import {
 
 const router = express.Router();
 
-router.use("/user", isAuthenticated);
+// router.use("/user", isAuthenticated);
 
 type RouteMethod = "get" | "post" | "put" | "delete";
 
