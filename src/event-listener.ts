@@ -1,7 +1,10 @@
 import { ethers } from "ethers";
 import payrollAbi from "../abi/payrollABI.json";
 import dotenv from "dotenv";
-import { generateSignature } from "./generate_signature";
+import {
+  generateSignatureForSwap,
+  generateSignatureForRedeem,
+} from "./generate_signature";
 import { burnIdrx } from "./burnIdrx";
 import axios from "axios"; // ✅ Tambahkan ini
 
@@ -25,7 +28,9 @@ const main = async () => {
     payrollAbi,
     provider
   );
+  const API_KEY = process.env.IDRX_API_KEY!;
 
+  // listen to PayrollApproved event
   contract.on(
     "PayrollApproved",
     async (
@@ -34,7 +39,7 @@ const main = async () => {
       employee,
       networkChainId,
       walletAddress,
-      amount,
+      amountBN,
       bankAccount,
       bankCode,
       bankName,
@@ -42,28 +47,50 @@ const main = async () => {
       event
     ) => {
       console.log(`[EVENT RECEIVED]`);
+      const amountString = ethers.utils.formatUnits(amountBN, 18);
 
       console.log({
         // payrollId,
         // company,
         networkChainId: networkChainId.toString(),
-        amountTransfer: amount.toString(), // Pastikan string
+        amountTransfer: amountString, // Pastikan string
         bankAccount,
         bankCode,
         bankName,
         bankAccountName,
         walletAddress,
       });
+      // listen to payrollApproved, generate signature (swap ke idrx), hit api swap rate usdc -> idrx, burn idrx, generate signature (redeem), post redeem,
 
-      // BURN disini
-      const txHash = await burnIdrx(amount, bankAccount);
+      // generate signature (swap ke idrx)
+      const { s_signature, s_METHOD, s_URL_ENDPOINT, s_timestamp } =
+        generateSignatureForSwap();
 
-      // Generate Signature disini
-      const { signature, METHOD, URL_ENDPOINT, timestamp, body } =
-        generateSignature(
+      // panggil API swap rate USDC -> IDRX disini
+      try {
+        const response = await axios.get(`https://idrx.co${s_URL_ENDPOINT}`, {
+          headers: {
+            "Content-Type": "application/json",
+            "idrx-api-key": API_KEY,
+            "idrx-api-sig": s_signature,
+            "idrx-api-ts": s_timestamp,
+          },
+        });
+
+        console.log("[API Response]", response.data);
+      } catch (err) {
+        console.error("[Failed to call redeem-request]", err);
+      }
+
+      // BURN idrx disini
+      const txHash = await burnIdrx(amountString, bankAccount);
+
+      // generate signature untuk redeem disini
+      const { r_signature, r_METHOD, r_URL_ENDPOINT, r_timestamp, r_body } =
+        generateSignatureForRedeem(
           txHash,
           networkChainId.toString(),
-          amount.toString(),
+          amountString,
           bankAccount,
           bankCode,
           bankName,
@@ -72,17 +99,16 @@ const main = async () => {
         );
 
       // panggil API REDEEM_REQUEST IDRX disini
-      const API_KEY = process.env.IDRX_API_KEY!;
       try {
         const response = await axios.post(
-          `https://idrx.co${URL_ENDPOINT}`,
-          body,
+          `https://idrx.co${r_URL_ENDPOINT}`,
+          r_body,
           {
             headers: {
               "Content-Type": "application/json",
               "idrx-api-key": API_KEY,
-              "idrx-api-sig": signature,
-              "idrx-api-ts": timestamp,
+              "idrx-api-sig": r_signature,
+              "idrx-api-ts": r_timestamp,
             },
           }
         );

@@ -1,8 +1,3 @@
-import sha256 from "crypto-js/sha256";
-const { ethers } = require("ethers");
-import env from "dotenv";
-env.config();
-
 const idrxAbi = [
   { inputs: [], stateMutability: "nonpayable", type: "constructor" },
   {
@@ -779,6 +774,11 @@ const idrxAbi = [
   },
 ];
 
+import sha256 from "crypto-js/sha256";
+const { ethers } = require("ethers");
+import dotenv from "dotenv";
+dotenv.config();
+
 const ALCHEMY_RPC_URL = process.env.ALCHEMY_RPC_URL!;
 const WALLET_PRIVATE_KEY = process.env.PRIVATE_KEY!;
 const IDRX_CONTRACT_ADDRESS = "0x18Bc5bcC660cf2B9cE3cd51a404aFe1a0cBD3C22";
@@ -811,6 +811,7 @@ export async function burnIdrx(amount: string, bankAccountNumber: string) {
     parsedAmount,
     hashBankAccountNumber
   );
+  await tx.wait();
 
   const txHash = tx.hash;
 

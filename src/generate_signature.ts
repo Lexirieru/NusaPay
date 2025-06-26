@@ -3,13 +3,14 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // console.log(process.env.IDRX_API_KEY);
+const SECRET_KEY = process.env.IDRX_SECRET_KEY!;
 
 function atob(str: string) {
   return Buffer.from(str, "base64").toString("binary");
 }
 
-// fungsi customku
-export function generateSignature(
+// fungsi customku generate signature untuk redeem request
+export function generateSignatureForRedeem(
   txHash: string,
   networkChainId: string,
   amountTransfer: string,
@@ -19,10 +20,10 @@ export function generateSignature(
   bankAccountName: string,
   walletAddress: string
 ) {
-  const METHOD = "POST";
-  const URL_ENDPOINT = "/api/transaction/redeem-request";
+  const r_METHOD = "POST";
+  const r_URL_ENDPOINT = "/api/transaction/redeem-request";
 
-  const body = {
+  const r_body = {
     txHash,
     // payrollId,
     // company,
@@ -34,18 +35,31 @@ export function generateSignature(
     bankAccountName,
     walletAddress,
   };
-  const timestamp = Date.now().toString(); // current time in ms
-  const SECRET_KEY = process.env.IDRX_SECRET_KEY!;
+  const r_timestamp = Date.now().toString(); // current time in ms
   if (!SECRET_KEY) throw new Error("Missing secret key");
 
-  const signature = createSignature(
-    METHOD,
-    URL_ENDPOINT,
-    body,
-    timestamp,
+  const r_signature = createSignature(
+    r_METHOD,
+    r_URL_ENDPOINT,
+    r_body,
+    r_timestamp,
     SECRET_KEY
   );
-  return { signature, METHOD, URL_ENDPOINT, timestamp, body };
+  return { r_signature, r_METHOD, r_URL_ENDPOINT, r_timestamp, r_body };
+}
+// fungsi customku generate signature untuk swap
+export function generateSignatureForSwap() {
+  const s_METHOD = "GET";
+  const s_URL_ENDPOINT = `/api/transaction/rates?usdtAmount=15`;
+  const s_timestamp = Date.now().toString(); // current time in ms
+  const s_signature = createSignature(
+    s_METHOD,
+    s_URL_ENDPOINT,
+    null,
+    s_timestamp,
+    SECRET_KEY
+  );
+  return { s_signature, s_METHOD, s_URL_ENDPOINT, s_timestamp };
 }
 
 // bawaan IDRX

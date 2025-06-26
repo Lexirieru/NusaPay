@@ -23,6 +23,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/crypto-js": "^4.2.2",
+    "@types/dotenv": "^8.2.3",
     "@types/express": "^5.0.3",
     "@types/method-override": "^3.0.0",
     "nodemon": "^3.1.10",
