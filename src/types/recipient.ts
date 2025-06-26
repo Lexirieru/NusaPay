@@ -5,8 +5,7 @@ export interface Recipient{
     name: string
     bank: string //nama bank
     account: string //no rekening
-    amount: number// jumlah tf
-    currency: string //mata uang (IDR, USD, dll)
-    localCurrency: string
+    amount: number// jumlah tf pengirim
+    currency: string //wallet si pengirim 
+    localCurrency: string //wallet penerima
 }
-

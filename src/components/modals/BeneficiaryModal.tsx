@@ -92,28 +92,6 @@ export default function BeneficiaryModal({recipient= null, onClose, onSave}: Ben
         }
     }
 
-    // const handleReset = () =>{
-    //     if(isEditMode && recipient){
-    //         setFormData({
-    //             name: recipient.name,
-    //             currency: recipient.currency,
-    //             localCurrency: recipient.localCurrency,
-    //             bank : recipient.bank,
-    //             account: recipient.account,
-    //             amount: recipient.amount.toString(),
-    //         })
-    //     } else{
-    //         setFormData({
-    //             name: "",
-    //             currency: "",
-    //             localCurrency: "",
-    //             bank : "",
-    //             account: "",
-    //             amount: "",
-    //         })
-    //     }
-    // }
-
     return(
         <ModalOverlay onClose={onClose}>
             <div className="relative bg-slate-800/50 border

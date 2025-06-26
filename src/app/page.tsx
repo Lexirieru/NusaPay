@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import type { Template } from "@/lib/template"
 import { AlertDialogDescription } from "@radix-ui/react-alert-dialog"
+import ProcessingModal from "@/components/modals/ProcessLoading"
 export default function Dashboard() {
   
   //state buat templates
@@ -305,7 +306,13 @@ export default function Dashboard() {
         />
       )}
 
-      {/* Konfirmasi transfer nanti disini */}
+      {/* Processing Loading */}
+      {showProcessingModal && currentTemplate && (
+        <ProcessingModal
+          recepientCount={currentTemplate.recipients.length}
+          onComplete={handleProcessingComplete}
+        />
+      )}
       
 
     </div>
