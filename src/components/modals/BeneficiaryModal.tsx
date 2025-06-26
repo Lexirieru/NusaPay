@@ -155,13 +155,6 @@ export default function BeneficiaryModal({recipient= null, onClose, onSave}: Ben
                     </div>
 
                     <div className="flex space-x-3">
-                        {/* Reset Button - hanya tampil di edit mode */}
-                        {/* {isEditMode && (
-                            <Button onClick={handleReset} variant="outline" className="flex-1 btn-secondary" type="button">
-                                Reset
-                            </Button>
-                        )} */}
-
                         {/* Submit Button */}
                         <Button
                             onClick={handleSubmit}
@@ -171,9 +164,7 @@ export default function BeneficiaryModal({recipient= null, onClose, onSave}: Ben
                         </Button>
                     </div>          
                 </div>
-
             </div>
-
         </ModalOverlay>
     )
 }

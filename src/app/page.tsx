@@ -105,7 +105,7 @@ export default function Dashboard() {
 
 
   // ngitung total amount dari semua recipients
-  const totalAmount = currentTemplate?.recipients.reduce((sum, recipient) => sum + recipient.amount, 0) || 0
+  // const totalAmount = currentTemplate?.recipients.reduce((sum, recipient) => sum + recipient.amount, 0) || 0
 
   
   /**
@@ -271,7 +271,6 @@ export default function Dashboard() {
       {/* Panel transfer floating */}
       {currentTemplate && currentTemplate.recipients.length > 0 && (
         <TransferPanel
-          totalAmount={totalAmount}
           totalRecipients={currentTemplate.recipients.length}
           onTransferClick={() => setShowTransferAlert(true)}
         />

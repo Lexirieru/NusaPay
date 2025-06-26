@@ -23,7 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={poppins.className + " bg-[#000000] text-white"}>
         <Navbar />
-        <div className="pt-[80px] px-4">{children}</div>
+        <div className=" px-4">{children}</div>
       </body>
     </html>
   );
