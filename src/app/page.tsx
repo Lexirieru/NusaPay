@@ -20,6 +20,7 @@ import type { Template } from "@/lib/template"
 import { AlertDialogDescription } from "@radix-ui/react-alert-dialog"
 import ProcessingModal from "@/components/modals/ProcessLoading"
 import { addGroupName, loadEmployeeData, loadGroupName } from "@/api"
+import { TemplateProvider, useTemplate } from "@/lib/TemplateContext"
 
 export default function Dashboard() {
   const [templates, setTemplates] = useState<Template[]>([])
@@ -42,7 +43,7 @@ export default function Dashboard() {
         console.log(groupTemplates)
 
         const templatesWithEmptyRecipients: Template[] = groupTemplates.map((group: any) => ({
-          id: group._id,
+          groupId: group.groupId,
           companyId: group.companyId,
           companyName: group.companyName,
           nameOfGroup: group.nameOfGroup,
@@ -55,7 +56,7 @@ export default function Dashboard() {
 
         // Default pilih yang pertama (opsional)
         if (templatesWithEmptyRecipients.length > 0) {
-          handleTemplateSwitch(templatesWithEmptyRecipients[0].id);
+          handleTemplateSwitch(templatesWithEmptyRecipients[0].groupId);
         }
       } catch (err) {
         console.error("Failed to fetch templates", err);
@@ -66,13 +67,14 @@ export default function Dashboard() {
   }, []);
 
   const handleTemplateSwitch = async (templateId: string) => {
-    const selected = templates.find((t) => t.id === templateId);
+    const selected = templates.find((t) => t.groupId === templateId);
     if (!selected) return;
 
     try {
       const response = await loadEmployeeData({
-        companyId: selected.companyId,
+        groupId: selected.groupId,
       });
+      console.log(response)
 
       const recipientsFromBackend: Recipient[] = response.map((emp: any) => ({
         _id: emp._id,
@@ -98,8 +100,9 @@ export default function Dashboard() {
   };
 
   const handleCreateTemplate = async (templateName: string) => {
+
     const newTemplate = {
-      id: `template-${Date.now()}`,
+      groupId: `${Date.now()}`,
       companyId: process.env.NEXT_PUBLIC_COMPANY_ID!,
       companyName: process.env.NEXT_PUBLIC_COMPANY_NAME!,
       nameOfGroup: templateName,
@@ -124,7 +127,7 @@ export default function Dashboard() {
     };
 
     setCurrentTemplate(updatedTemplate);
-    setTemplates(templates.map((t) => (t.id === currentTemplate.id ? updatedTemplate : t)));
+    setTemplates(templates.map((t) => (t.groupId === currentTemplate.groupId ? updatedTemplate : t)));
   };
 
   const handleAddRecipient = (newRecipient: Omit<Recipient, "_id">) => {
@@ -159,6 +162,8 @@ export default function Dashboard() {
   };
 
   return (
+    <TemplateProvider>
+
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       <main className="relative z-10 p-6 pb-32">
         <div className="flex items-center justify-center">
@@ -242,5 +247,7 @@ export default function Dashboard() {
         />
       )}
     </div>
+    </TemplateProvider>
+    
   );
 }

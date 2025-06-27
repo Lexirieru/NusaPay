@@ -3,6 +3,7 @@ import DropdownItem from "./Dropdown"
 import { useState } from "react"
 import { ChevronDown } from "lucide-react"
 import type { Template } from "@/lib/template"
+import { useTemplate } from "@/lib/TemplateContext"
 
 interface DashboardHeaderProps{
     templates: Template[]
@@ -13,7 +14,7 @@ interface DashboardHeaderProps{
 
 export default function DashboardHeader({templates, currentTemplate, onTemplateSwitch, onCreateTemplate} : DashboardHeaderProps){
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-
+    const {switchTemplate} = useTemplate();
     const handleHeaderClick = () =>{
         setIsDropdownOpen(!isDropdownOpen)
     }
@@ -24,6 +25,9 @@ export default function DashboardHeader({templates, currentTemplate, onTemplateS
 
     // handler buat ganti template
     const handleTemplateSelect =(templateId: string) => {
+        console.log(templateId) //groupId
+
+        switchTemplate(templateId)
         onTemplateSwitch(templateId)
         handleCloseDropDown
     }
@@ -74,10 +78,10 @@ export default function DashboardHeader({templates, currentTemplate, onTemplateS
                                 {templates.length>0?(
                                     templates.map((template) =>(
                                         <DropdownItem
-                                            key={template.id}
+                                            key={template.groupId}
                                             template={template}
-                                            isActive={currentTemplate?.id === template.id}
-                                            onClick={() => handleTemplateSelect(template.id)}
+                                            isActive={currentTemplate?.groupId === template.groupId}
+                                            onClick={() => handleTemplateSelect(template.groupId)}
                                         />
                                     ))
                                 ): (

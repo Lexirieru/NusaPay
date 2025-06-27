@@ -2,7 +2,7 @@ import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { LoadPayloadWithCompanyId, Recipient } from "./types/recipient";
+import { LoadPayloadForGroupId, LoadPayloadWithCompanyId, Recipient } from "./types/recipient";
 import { Template } from "./lib/template";
 // =====================
 // TIPE DATA
@@ -31,7 +31,7 @@ interface AddEmployeePayload {
   amountTransfer: number;
   currency : string,
   localCurrency : string,
-  nameOfGroup : string
+  groupId? : string
 }
 
 interface editEmployeePayload {
@@ -141,10 +141,11 @@ interface LoadEmployeeResponse {
 }
 
 export const loadEmployeeData = async (
-  payload: LoadPayloadWithCompanyId
+  payload: LoadPayloadForGroupId
 ): Promise<Recipient[]> => {
   try {
     const response = await api.post<LoadEmployeeResponse>('/loadEmployeeDataFromGroup', payload);
+    console.log(response)
     return response.data.data;
   } catch (error: any) {
     console.error('Failed to load employee data:', error?.message || error);

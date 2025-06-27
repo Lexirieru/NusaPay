@@ -34,5 +34,9 @@ export interface LoadPayloadWithCompanyId {
     companyId: string;
 }  
 
+export interface LoadPayloadForGroupId {
+    groupId: string;
+}  
+
 
 

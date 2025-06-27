@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 import FormField from "./FormField";
 import ModalOverlay from "./ModalOverlay";
 import { addEmployeeData, editEmployeeData } from "../../api";
+import { useTemplate } from "@/lib/TemplateContext";
 
 /**
  * Add Beneficiary Modal Component
@@ -37,6 +38,7 @@ export default function BeneficiaryModal({
     amountTransfer: "",
   });
 
+  const {currentTemplateId} = useTemplate();
   const modalTitle = isEditMode ? `${formData.name}` : "Add Beneficiary";
 
   useEffect(() => {
@@ -78,6 +80,7 @@ export default function BeneficiaryModal({
       alert("Please fill in all required fields");
       return;
     }
+    console.log(currentTemplateId);
 
     const commonPayload = {
         companyId: "107703412124664160183", // TODO: Ambil dari cookie/session nanti
@@ -91,7 +94,7 @@ export default function BeneficiaryModal({
         amountTransfer: Number.parseFloat(formData.amountTransfer),
         currency: formData.currency || "USDC",
         localCurrency: formData.localCurrency || "IDR",
-        nameOfGroup : "Batch 1" // harusnya diganti dengan bisa menyesuaikan skrg lagi ada di template apa
+        groupId : currentTemplateId ?? "685e122d7d02fb265fac7dce" // harusnya diganti dengan bisa menyesuaikan skrg lagi ada di template apa
       };
     
       if (isEditMode && employee) {
