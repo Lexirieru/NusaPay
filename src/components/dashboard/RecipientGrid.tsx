@@ -25,9 +25,9 @@ export default function RecipientGrid({ recipients, onAddClick, onRemoveRecipien
       {/* Render semua recipient cards */}
       {recipients.map((recipient) => (
         <RecipientCard 
-          key={recipient.id} 
+          key={recipient._id} 
           recipient={recipient} 
-          onRemove={() => onRemoveRecipient(recipient.id)}
+          onRemove={() => onRemoveRecipient(recipient._id)}
           onClick ={() =>onRecipientClick(recipient)}
         />
       ))}

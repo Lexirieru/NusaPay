@@ -43,7 +43,7 @@ export default function DashboardHeader({templates, currentTemplate, onTemplateS
                          from-white to-gray-300 bg-clip-text 
                          text-transparent group-hover:from-cyan-400 group-hover:to-blue-400 
                          transition-all duration-300">
-                        {currentTemplate?.name || "No Template Selected"}
+                        {currentTemplate?.nameOfGroup || "No Template Selected"}
                     </h1>
                     <div
                         className={`bg-white rounded-full transition-transform duration-300 ${isDropdownOpen? "rotate-180": ""}`}>

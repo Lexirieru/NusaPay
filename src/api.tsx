@@ -1,0 +1,166 @@
+import axios, { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { LoadPayloadWithCompanyId, Recipient } from "./types/recipient";
+import { Template } from "./lib/template";
+// =====================
+// TIPE DATA
+// =====================
+interface AuthUser {
+  companyId: string; //ambil dari ID google
+  email: string;
+  companyName?: string;
+  walletAddress?: string;
+  networkChainId?: string;
+}
+interface AuthResponse {
+  authenticated: boolean;
+  user?: AuthUser;
+}
+
+interface AddEmployeePayload {
+  companyId: string;
+  companyName: string;
+  name: string;
+  bankCode: string;
+  bankAccount: string;
+  bankAccountName: string;
+  walletAddress: string;
+  networkChainId: number;
+  amountTransfer: number;
+  currency : string,
+  localCurrency : string,
+  nameOfGroup : string
+}
+
+interface editEmployeePayload {
+  _id: string;
+  bankCode: string;
+  bankAccount: string;
+  bankAccountName: string;
+  amountTransfer: number;
+}
+
+interface ErrorResponse {
+  message?: string;
+}
+
+// =====================
+// KONFIGURASI AXIOS
+// =====================
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// =====================
+// INTERCEPTOR
+// =====================
+api.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError<ErrorResponse>) => {
+    if (error.code === "ECONNABORTED") {
+      return Promise.reject({ message: "Request timeout" });
+    }
+    return Promise.reject(error.response?.data || { message: "Unknown error" });
+  }
+);
+
+// =====================
+// HOOK CEK AUTH
+// =====================
+export const useAuthCheck = () => {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await api.get<AuthResponse>("/check-auth");
+        if (res.data.authenticated && res.data.user) {
+          setUser(res.data.user);
+        } else {
+          router.push("/login");
+        }
+      } catch (err) {
+        router.push("/login");
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  return user;
+};
+
+// =====================
+// FUNGSI API
+// =====================
+
+export const addEmployeeData = async (
+  payload: AddEmployeePayload
+): Promise<void> => {
+  const response = await api.post("/addEmployeeDataToGroup", payload);
+  console.log(payload)
+  return response.data;
+};
+
+export const addGroupName = async (
+  payload: Template 
+): Promise<void> => {
+  const response = await api.post("/addGroupName", payload);
+  console.log(payload)
+  return response.data;
+};
+
+interface LoadGroupNameResponse {
+  message: string;
+  data: Template[];
+}
+
+export const loadGroupName = async (
+  payload: LoadPayloadWithCompanyId
+): Promise<Template[]> => {
+  try {
+    const response = await api.post<LoadGroupNameResponse>('/loadGroupName', payload);
+    console.log(response.data.data)
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Failed to load employee data:', error?.message || error);
+    throw error;
+  }
+};
+
+interface LoadEmployeeResponse {
+  message: string;
+  data: Recipient[];
+}
+
+export const loadEmployeeData = async (
+  payload: LoadPayloadWithCompanyId
+): Promise<Recipient[]> => {
+  try {
+    const response = await api.post<LoadEmployeeResponse>('/loadEmployeeDataFromGroup', payload);
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Failed to load employee data:', error?.message || error);
+    throw error;
+  }
+};
+
+export const editEmployeeData = async (
+  payload: editEmployeePayload
+): Promise<void> => {
+  const response = await api.post("/editEmployeeDataFromGroup", payload);
+  return response.data;
+};
+
+// export const logout = async () => {
+//   await api.post("/logout"); // backend akan hapus cookie
+// };
+
+// };

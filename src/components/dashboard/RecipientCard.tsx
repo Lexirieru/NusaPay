@@ -56,18 +56,18 @@ export default function RecipientCard({ recipient, onRemove, onClick }: Recipien
       <div className="space-y-3 mx-2">
         <div className="flex items-center font-medium space-x-2 text-white">
           <Building2 className="w-4 h-4" />
-          <span className="text-sm">{recipient.bank}</span>
+          <span className="text-sm">{recipient.bankAccountName}</span>
         </div>
 
         <div className="flex items-center space-x-2 text-gray-400">
           <User className="w-4 h-4" />
-          <span className="text-sm">{recipient.account}</span>
+          <span className="text-sm">{recipient.bankAccount}</span>
         </div>
 
         {/* Amount Section */}
         <div className="pt-2 border-t border-gray-700/50">
           <p className="justify-end flex text-cyan-400 font-bold text-xl">
-            {recipient.currency} {recipient.amount.toLocaleString()}
+            {recipient.currency} {recipient.amountTransfer.toLocaleString()}
           </p>
         </div>
       </div>

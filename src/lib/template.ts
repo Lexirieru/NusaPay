@@ -3,8 +3,10 @@
 import { Recipient } from "@/types/recipient"
 
 export interface Template{
+    companyId : string,
+    companyName : string,
+    nameOfGroup : string,
     id:string
-    name:string
     recipients: Recipient[]
     createdAt: Date
     updatedAt: Date

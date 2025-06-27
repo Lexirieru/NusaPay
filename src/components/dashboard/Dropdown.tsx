@@ -15,7 +15,7 @@ export default function DropdownItem({template, isActive=false, onClick}
                 
             >
                 <div className="flex justify-between items-center">
-                    <span>{template.name}</span>
+                    <span>{template.nameOfGroup}</span>
                     <span className="text-xs text-gray-500">{template.recipients.length}</span>
                 </div>
                 
