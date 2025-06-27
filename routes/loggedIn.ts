@@ -18,7 +18,8 @@ import {
   addOrUpdateCompanyStats,
   addOrUpdateCompanyData,
   loadGroupName,
-  deleteEmployeeDataFromGroup
+  deleteEmployeeDataFromGroup,
+  checkWalletAddressStatus
 } from "../controllers/companyController";
 
 const router = express.Router();
@@ -102,6 +103,12 @@ const routes: RouteDefinition[] = [
     method: "get",
     path: "/loadGroupOfEmployee",
     action: loadGroupOfEmployee,
+  },
+  
+  {
+    method: "get",
+    path: "/checkWalletAddressStatus",
+    action: checkWalletAddressStatus,
   },
 
   {

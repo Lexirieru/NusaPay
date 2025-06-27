@@ -36,6 +36,7 @@ export async function addOrUpdateCompanyData(req: Request, res: Response) {
   }
 }
 
+
 export async function addEmployeeDataToGroup(req: Request, res: Response) {
   // bankCode dari FE harus bisa nge enum sesuai dengan bankAccountnya
   const {
@@ -104,34 +105,27 @@ export async function addEmployeeDataToGroup(req: Request, res: Response) {
     });
   }
 }
+export async function loadEmployeeDataFromGroup(req: Request, res: Response) {
+  const { groupId, } = req.body;
 
-// nek ada yang di delete ntar masuknya juga ke handler editEmployeeData ini
-export async function deleteEmployeeDataFromGroup(req: Request, res: Response) {
-  const {
-    id,
-  } = req.body;
-  const _id = new mongoose.Types.ObjectId(id);
   try {
-    const employeeData = await EmployeeModel.findByIdAndDelete(_id);
-
-    if (!employeeData) {
-      res.status(404).json({
-        message: "Employee not found",
-      });
-    }
-
+    const latestGroupOfEmployee = await EmployeeModel.find({
+      groupId,
+    })
+      .sort({ timestamp: -1 }) // descending (terbaru di atas)
+      .lean(); // supaya hasilnya plain JS object dan lebih cepat
+    console.log()
     res.status(201).json({
-      message: "Employee data successfully deleted",
-      payroll: employeeData,
+      message: "Group of employee successfully sended",
+      data: latestGroupOfEmployee,
     });
   } catch (err: any) {
     res.status(500).json({
-      message: "Error deleting employee data",
+      message: "Error sending group of employee",
       error: err.message,
     });
   }
 }
-
 export async function editEmployeeDataFromGroup(req: Request, res: Response) {
   const {
     _id,
@@ -174,28 +168,35 @@ export async function editEmployeeDataFromGroup(req: Request, res: Response) {
     });
   }
 }
-
-export async function loadEmployeeDataFromGroup(req: Request, res: Response) {
-  const { groupId, } = req.body;
-
+// nek ada yang di delete ntar masuknya juga ke handler editEmployeeData ini
+export async function deleteEmployeeDataFromGroup(req: Request, res: Response) {
+  const {
+    id,
+  } = req.body;
+  const _id = new mongoose.Types.ObjectId(id);
   try {
-    const latestGroupOfEmployee = await EmployeeModel.find({
-      groupId,
-    })
-      .sort({ timestamp: -1 }) // descending (terbaru di atas)
-      .lean(); // supaya hasilnya plain JS object dan lebih cepat
-    console.log()
+    const employeeData = await EmployeeModel.findByIdAndDelete(_id);
+
+    if (!employeeData) {
+      res.status(404).json({
+        message: "Employee not found",
+      });
+    }
+
     res.status(201).json({
-      message: "Group of employee successfully sended",
-      data: latestGroupOfEmployee,
+      message: "Employee data successfully deleted",
+      payroll: employeeData,
     });
   } catch (err: any) {
     res.status(500).json({
-      message: "Error sending group of employee",
+      message: "Error deleting employee data",
       error: err.message,
     });
   }
 }
+
+
+
 
 export async function addGroupName(req: Request, res: Response) {
   const { companyId, companyName, nameOfGroup, groupId } = req.body;
@@ -221,26 +222,33 @@ export async function addGroupName(req: Request, res: Response) {
     });
   }
 }
+
 export async function checkWalletAddressStatus(req: Request, res: Response) {
-  const { companyId, companyName, nameOfGroup, groupId } = req.body;
-
+  const { companyId } = req.body;
   try {
-    // minta FE buat ngirimin employeesNamenya juga (ketimbang backend harus ngefind satu satu name dari Id)
-    const newGroupOfEmployee = new GroupOfEmployeeData({
-      companyId,
-      companyName,
-      nameOfGroup,
-      groupId
+    const companyData = await CompanyDataModel.findOne({companyId})
+    if(!companyData){
+      res.status(404).json({
+        message: "Company data not found",
+        data: false,
+      });
+    }
+
+    if (!companyData!.walletAddress) {
+      res.status(200).json({
+        message: "Wallet address not found",
+        data: false,
+      });
+    }
+
+    res.status(200).json({
+      message: "Wallet address found",
+      data: true,
     });
 
-    const saved = await newGroupOfEmployee.save();
-    res.status(201).json({
-      message: "New Groupsuccessfully created",
-      payroll: saved,
-    });
   } catch (err: any) {
     res.status(500).json({
-      message: "Error adding new group",
+      message: "Error checking wallet address status",
       error: err.message,
     });
   }
