@@ -11,7 +11,8 @@ import loggedInRoutes from "./routes/loggedIn";
 import session from "express-session";
 import passport from "passport";
 import authRoutes from "./routes/auth";
-
+import cookieParser from "cookie-parser"
+import { checkSession } from "./config/checkSession";
 const app = express();
 connectDB();
 app.use(
@@ -20,6 +21,7 @@ app.use(
     credentials: true, // Izinkan cookie untuk dikirim bersama permintaan
   })
 );
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(methodOverride("_method")); //  buat munculin UPDATE dan DELETE
@@ -48,7 +50,7 @@ app.use(passport.session());
 // });
 
 app.use("/", authRoutes);
-app.use("/", loggedInRoutes);
+app.use("/", checkSession, loggedInRoutes);
 
 //handle semua endpoint yang gaada untuk menampilkan 404 not found page
 app.get("*", (req, res) => {

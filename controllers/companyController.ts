@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { EmployeeModel, GroupOfEmployeeData } from "../models/employeeModel"; // Pastikan path-nya benar
 import { CompanyDataModel, CompanyStatsModel } from "../models/companyModel";
+import mongoose from "mongoose";
 
 // untuk form ngemasukkin companyName, nyambungin wallet dan networkchainnya setelah berhasil login pake googleoauth20
 export async function addOrUpdateCompanyData(req: Request, res: Response) {
@@ -35,7 +36,7 @@ export async function addOrUpdateCompanyData(req: Request, res: Response) {
   }
 }
 
-export async function addEmployeeData(req: Request, res: Response) {
+export async function addEmployeeDataToGroup(req: Request, res: Response) {
   // bankCode dari FE harus bisa nge enum sesuai dengan bankAccountnya
   const {
     companyId,
@@ -47,6 +48,9 @@ export async function addEmployeeData(req: Request, res: Response) {
     walletAddress,
     networkChainId,
     amountTransfer,
+    currency,
+    localCurrency,
+    groupId
   } = req.body;
 
   try {
@@ -60,9 +64,33 @@ export async function addEmployeeData(req: Request, res: Response) {
       walletAddress,
       networkChainId,
       amountTransfer,
+      currency,
+      localCurrency,
+      groupId
     });
 
     const saved = await newEmployeeData.save();
+  
+    const updatedGroup = await GroupOfEmployeeData.findOneAndUpdate(
+      {groupId},
+      {
+        $push: {
+          employees: {
+            id: saved._id,
+            name: saved.name,
+          },
+        },
+        $inc: { totalRecipients: 1 },
+      },
+      { new: true }
+    );
+
+    if (!updatedGroup) {
+       res.status(404).json({
+        message: "Group not found. Make sure the nameOfGroup is correct.",
+      });
+    }
+
     res.status(201).json({
       message: "Employee data successfully added",
       payroll: saved,
@@ -76,15 +104,41 @@ export async function addEmployeeData(req: Request, res: Response) {
 }
 
 // nek ada yang di delete ntar masuknya juga ke handler editEmployeeData ini
-export async function editEmployeeData(req: Request, res: Response) {
+export async function deleteEmployeeDataFromGroup(req: Request, res: Response) {
+  const {
+    id,
+  } = req.body;
+  const _id = new mongoose.Types.ObjectId(id);
+  try {
+    const employeeData = await EmployeeModel.findByIdAndDelete(_id);
+
+    if (!employeeData) {
+      res.status(404).json({
+        message: "Employee not found",
+      });
+    }
+
+    res.status(201).json({
+      message: "Employee data successfully deleted",
+      payroll: employeeData,
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      message: "Error deleting employee data",
+      error: err.message,
+    });
+  }
+}
+
+export async function editEmployeeDataFromGroup(req: Request, res: Response) {
   const {
     _id,
     bankCode,
     bankAccount,
     bankAccountName,
-    walletAddress,
-    networkChainId,
     amountTransfer,
+    currency,
+    localCurrency
   } = req.body;
 
   try {
@@ -94,9 +148,9 @@ export async function editEmployeeData(req: Request, res: Response) {
         bankCode,
         bankAccount,
         bankAccountName,
-        walletAddress,
-        networkChainId,
         amountTransfer,
+        currency,
+        localCurrency
       },
       { new: true }
     );
@@ -119,16 +173,16 @@ export async function editEmployeeData(req: Request, res: Response) {
   }
 }
 
-export async function loadEmployeeData(req: Request, res: Response) {
-  const { companyId } = req.body;
+export async function loadEmployeeDataFromGroup(req: Request, res: Response) {
+  const { groupId, } = req.body;
 
   try {
     const latestGroupOfEmployee = await EmployeeModel.find({
-      companyId,
+      groupId,
     })
       .sort({ timestamp: -1 }) // descending (terbaru di atas)
       .lean(); // supaya hasilnya plain JS object dan lebih cepat
-
+    console.log()
     res.status(201).json({
       message: "Group of employee successfully sended",
       data: latestGroupOfEmployee,
@@ -141,8 +195,8 @@ export async function loadEmployeeData(req: Request, res: Response) {
   }
 }
 
-export async function addGroupOfEmployee(req: Request, res: Response) {
-  const { companyId, companyName, nameOfGroup, employees } = req.body;
+export async function addGroupName(req: Request, res: Response) {
+  const { companyId, companyName, nameOfGroup, groupId } = req.body;
 
   try {
     // minta FE buat ngirimin employeesNamenya juga (ketimbang backend harus ngefind satu satu name dari Id)
@@ -150,17 +204,39 @@ export async function addGroupOfEmployee(req: Request, res: Response) {
       companyId,
       companyName,
       nameOfGroup,
-      employees,
+      groupId
     });
 
     const saved = await newGroupOfEmployee.save();
     res.status(201).json({
-      message: "Group of employee successfully added",
+      message: "New Groupsuccessfully created",
       payroll: saved,
     });
   } catch (err: any) {
     res.status(500).json({
-      message: "Error adding group of employee",
+      message: "Error adding new group",
+      error: err.message,
+    });
+  }
+}
+
+export async function loadGroupName(req: Request, res: Response) {
+  const { companyId } = req.body;
+
+  try {
+    const loadAllGroupName = await GroupOfEmployeeData.find({
+      companyId,
+    })
+      .sort({ timestamp: -1 }) // descending (terbaru di atas)
+      .lean(); // supaya hasilnya plain JS object dan lebih cepat
+
+    res.status(201).json({
+      message: "Group of employee successfully sended",
+      data : loadAllGroupName
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      message: "Error sending group of employee",
       error: err.message,
     });
   }
@@ -168,15 +244,14 @@ export async function addGroupOfEmployee(req: Request, res: Response) {
 
 // nek ada yang di delete ntar masuknya juga ke
 // handler editGroupOfEmployee ini
-export async function editGroupOfEmployee(req: Request, res: Response) {
-  const { _id, nameOfGroup, employees } = req.body;
+export async function addOrEditGroupOfEmployee(req: Request, res: Response) {
+  const { _id, employees } = req.body;
 
   try {
     // minta FE buat ngirimin employeesNamenya juga (ketimbang backend harus ngefind satu satu name dari Id)
     const groupOfEmployee = await GroupOfEmployeeData.findByIdAndUpdate(
       _id,
       {
-        nameOfGroup,
         employees,
       },
       { new: true }
@@ -186,11 +261,13 @@ export async function editGroupOfEmployee(req: Request, res: Response) {
         message: "Group of employee not found",
       });
     }
+    
     res.status(201).json({
       message: "Group of employee successfully edited",
-      payroll: groupOfEmployee,
     });
-  } catch (err: any) {
+  } 
+  
+  catch (err: any) {
     res.status(500).json({
       message: "Error editing group of employee",
       error: err.message,
@@ -302,3 +379,4 @@ export async function addOrUpdateCompanyStats(req: Request, res: Response) {
     });
   }
 }
+

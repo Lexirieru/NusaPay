@@ -4,7 +4,7 @@ const EmployeeDataSchema = new Schema(
   {
     // Company mana yang punya employee ini,
     companyId: {
-      type: Schema.Types.ObjectId,
+      type: String,
       required: true,
     },
     companyName: {
@@ -30,7 +30,7 @@ const EmployeeDataSchema = new Schema(
     walletAddress: {
       type: String,
       required: true,
-    },
+    },  
     networkChainId: {
       type: Number,
       required: true,
@@ -39,6 +39,18 @@ const EmployeeDataSchema = new Schema(
       type: Number,
       required: true,
     },
+    currency : {
+      type: String,
+      required: true,
+    },
+    localCurrency : {
+      type: String,
+      required: true,
+    },
+    groupId : {
+      type : String,
+      required : true
+    }
   },
   {
     timestamps: true, // createdAt, updatedAt
@@ -50,15 +62,18 @@ export const EmployeeModel = mongoose.model("EmployeeData", EmployeeDataSchema);
 const GroupOfEmployeeSchema = new Schema(
   {
     companyId: {
-      type: Schema.Types.ObjectId,
+      type: String,
       required: true,
     },
     companyName: {
       type: String,
       required: true,
     },
-
     nameOfGroup: {
+      type: String,
+      required: true,
+    },
+    groupId: {
       type: String,
       required: true,
     },
@@ -70,11 +85,11 @@ const GroupOfEmployeeSchema = new Schema(
         id: {
           type: Schema.Types.ObjectId,
           ref: "EmployeeData",
-          required: true,
+          required: false,
         },
         name: {
           type: String,
-          required: true,
+          required: false,
         },
       },
     ],

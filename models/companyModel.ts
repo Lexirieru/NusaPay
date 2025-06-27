@@ -36,7 +36,7 @@ export const CompanyDataModel = mongoose.model(
 
 const CompanyStatsSchema = new Schema({
   companyId: {
-    type: Schema.Types.ObjectId,
+    type: String,
     required: true,
   },
 
@@ -93,3 +93,20 @@ export const CompanyStatsModel = mongoose.model(
   "CompanyStats",
   CompanyStatsSchema
 );
+
+const LoginSessionTokenSchema = new Schema({
+  email: {
+    type: String,
+    required: true,
+  },
+  token: {
+    type: String,
+    required: true,
+  },
+})
+
+export const LoginSessionTokenModel = mongoose.model(
+  "LoginSession",
+  LoginSessionTokenSchema
+);
+

@@ -1,9 +1,10 @@
 import express, { Request, Response, Router } from "express";
 import passport from "passport";
 import { Strategy as GoogleStrategy, Profile } from "passport-google-oauth20";
-import { CompanyDataModel } from "../models/companyModel";
+import { CompanyDataModel, LoginSessionTokenModel } from "../models/companyModel";
 import { generateToken } from "../config/generateToken";
 import { verifyToken } from "../middleware/checkTokenAuthentication";
+import { checkSession } from "../config/checkSession";
 
 const router: Router = express.Router();
 
@@ -68,6 +69,17 @@ passport.deserializeUser((user, done) => {
   done(null, user!);
 });
 
+router.get("/me", checkSession, async (req, res) => {
+  const user = req.user as any;
+  console.log(user)
+  const payload = {
+    _id: user.id?.toString(),
+    email: user.email,
+  };
+  console.log("Payload being sent to frontend:", payload);
+  res.json(payload);
+});
+
 // GOOGLE AUTH ENDPOINT
 router.get(
   "/auth/google",
@@ -93,7 +105,11 @@ router.get(
         id: userToUse._id?.toString(),
         email: userToUse.email,
       });
+      const tokenSession = new LoginSessionTokenModel({
+        email, token
+      });
 
+      await tokenSession.save()
       res.cookie("user_session", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -107,6 +123,7 @@ router.get(
     }
   }
 );
+
 
 // LOGOUT
 router.post("/logout", (req: Request, res: Response) => {

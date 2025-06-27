@@ -9,14 +9,16 @@ import {
 } from "../controllers/transactionController";
 
 import {
-  addEmployeeData,
-  editEmployeeData,
-  loadEmployeeData,
-  addGroupOfEmployee,
-  editGroupOfEmployee,
+  addEmployeeDataToGroup,
+  editEmployeeDataFromGroup,
+  loadEmployeeDataFromGroup,
+  addGroupName,
+  addOrEditGroupOfEmployee,
   loadGroupOfEmployee,
   addOrUpdateCompanyStats,
   addOrUpdateCompanyData,
+  loadGroupName,
+  deleteEmployeeDataFromGroup
 } from "../controllers/companyController";
 
 const router = express.Router();
@@ -58,32 +60,43 @@ const routes: RouteDefinition[] = [
   // Employee Data
   {
     method: "post",
-    path: "/addEmployeeData",
-    action: addEmployeeData,
+    path: "/addEmployeeDataToGroup",
+    action: addEmployeeDataToGroup,
   },
 
   {
     method: "post",
-    path: "/editEmployeeData",
-    action: editEmployeeData,
+    path: "/deleteEmployeeDataFromGroup",
+    action: deleteEmployeeDataFromGroup,
   },
 
   {
-    method: "get",
-    path: "/loadEmployeeData",
-    action: loadEmployeeData,
+    method: "post",
+    path: "/editEmployeeDataFromGroup",
+    action: editEmployeeDataFromGroup,
   },
 
-  // Group of employee data
   {
     method: "post",
-    path: "/addGroupOfEmployee",
-    action: addGroupOfEmployee,
+    path: "/loadEmployeeDataFromGroup",
+    action: loadEmployeeDataFromGroup,
+  },
+
+  {
+    method: "post",
+    path: "/addGroupName",
+    action: addGroupName,
+  },
+
+  {
+    method: "post",
+    path: "/loadGroupName",
+    action: loadGroupName,
   },
   {
     method: "post",
-    path: "/editGroupOfEmployee",
-    action: editGroupOfEmployee,
+    path: "/addOrEditGroupOfEmployee",
+    action: addOrEditGroupOfEmployee,
   },
   {
     method: "get",
