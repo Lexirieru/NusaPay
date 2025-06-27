@@ -90,11 +90,13 @@ export async function addEmployeeDataToGroup(req: Request, res: Response) {
         message: "Group not found. Make sure the nameOfGroup is correct.",
       });
     }
+    else{
+      res.status(201).json({
+        message: "Employee data successfully added",
+        payroll: saved,
+      });
+    }
 
-    res.status(201).json({
-      message: "Employee data successfully added",
-      payroll: saved,
-    });
   } catch (err: any) {
     res.status(500).json({
       message: "Error adding employee data",
@@ -196,6 +198,30 @@ export async function loadEmployeeDataFromGroup(req: Request, res: Response) {
 }
 
 export async function addGroupName(req: Request, res: Response) {
+  const { companyId, companyName, nameOfGroup, groupId } = req.body;
+
+  try {
+    // minta FE buat ngirimin employeesNamenya juga (ketimbang backend harus ngefind satu satu name dari Id)
+    const newGroupOfEmployee = new GroupOfEmployeeData({
+      companyId,
+      companyName,
+      nameOfGroup,
+      groupId
+    });
+
+    const saved = await newGroupOfEmployee.save();
+    res.status(201).json({
+      message: "New Groupsuccessfully created",
+      payroll: saved,
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      message: "Error adding new group",
+      error: err.message,
+    });
+  }
+}
+export async function checkWalletAddressStatus(req: Request, res: Response) {
   const { companyId, companyName, nameOfGroup, groupId } = req.body;
 
   try {
