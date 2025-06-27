@@ -19,7 +19,7 @@ import {
 import type { Template } from "@/lib/template"
 import { AlertDialogDescription } from "@radix-ui/react-alert-dialog"
 import ProcessingModal from "@/components/modals/ProcessLoading"
-import { addGroupName, loadEmployeeData, loadGroupName } from "@/api"
+import { addGroupName, deleteEmployeeData, editEmployeeData, loadEmployeeData, loadGroupName } from "@/api"
 import { TemplateProvider, useTemplate } from "@/lib/TemplateContext"
 
 export default function Dashboard() {
@@ -74,6 +74,7 @@ export default function Dashboard() {
       const response = await loadEmployeeData({
         groupId: selected.groupId,
       });
+
       console.log(response)
 
       const recipientsFromBackend: Recipient[] = response.map((emp: any) => ({
@@ -150,16 +151,28 @@ export default function Dashboard() {
     setShowBeneficiaryModal(false);
   };
 
-  const handleRemoveRecipient = (id: string) => {
+  const handleRemoveRecipient = async (id: string) => {
     if (!currentTemplate) return;
     const updatedList = currentTemplate.recipients.filter((r) => r._id !== id);
+    await deleteEmployeeData(id);
     updateCurrentTemplateRecipients(updatedList);
   };
 
-  const handleSaveBeneficiary = (data: Recipient | Omit<Recipient, "_id">) => {
-    if ("_id" in data) handleEditRecipient(data);
-    else handleAddRecipient(data);
+  const handleSaveBeneficiary = async (data: Recipient | Omit<Recipient, "_id">) => {
+    if (!currentTemplate) return;
+  
+    if ("_id" in data) {
+      
+      await editEmployeeData({ ...data, _id: data._id }); 
+      await handleTemplateSwitch(currentTemplate.groupId);
+    } else {
+      // Ini tambah baru (tidak perlu fetch ulang kalau hanya local update)
+      handleAddRecipient(data);
+    }
+  
+    setShowBeneficiaryModal(false);
   };
+  
 
   return (
     <TemplateProvider>
@@ -180,7 +193,10 @@ export default function Dashboard() {
             recipients={currentTemplate.recipients}
             onAddClick={() => setShowBeneficiaryModal(true)}
             onRemoveRecipient={handleRemoveRecipient}
-            onRecipientClick={setEditingRecipient}
+            onRecipientClick={(recipient) => {
+              setEditingRecipient(recipient);
+              setShowBeneficiaryModal(true); 
+            }}
           />
         ) : (
           <div className="text-center py-12">

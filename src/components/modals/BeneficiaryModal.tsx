@@ -5,7 +5,7 @@ import type { Employee, Recipient } from "@/types/recipient";
 import { Button } from "../ui/button";
 import FormField from "./FormField";
 import ModalOverlay from "./ModalOverlay";
-import { addEmployeeData, editEmployeeData } from "../../api";
+import { addEmployeeData } from "../../api";
 import { useTemplate } from "@/lib/TemplateContext";
 
 /**
@@ -102,11 +102,10 @@ export default function BeneficiaryModal({
           ...commonPayload,
           id: employee._id,
         };
-        onSave(updatedEmployee); // Untuk update di UI
-        await editEmployeeData({ ...commonPayload, _id: employee._id }); // Untuk update ke BE
-      } else {
-        onSave(commonPayload); // Untuk tambah ke UI
-        await addEmployeeData(commonPayload); // Untuk tambah ke BE
+        onSave(updatedEmployee); 
+       } else {
+        onSave(commonPayload); 
+        await addEmployeeData(commonPayload); 
       }
   };
 

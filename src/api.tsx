@@ -160,6 +160,11 @@ export const editEmployeeData = async (
   return response.data;
 };
 
+export const deleteEmployeeData = async (id: string): Promise<void> => {
+  const response = await api.post("/deleteEmployeeDataFromGroup", { id });
+  return response.data;
+};
+
 // export const logout = async () => {
 //   await api.post("/logout"); // backend akan hapus cookie
 // };
