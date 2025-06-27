@@ -7,6 +7,7 @@ import FormField from "./FormField";
 import ModalOverlay from "./ModalOverlay";
 import { addEmployeeData } from "../../api";
 import { useTemplate } from "@/lib/TemplateContext";
+import { useUser } from "@/lib/UserContext";
 
 /**
  * Add Beneficiary Modal Component
@@ -37,7 +38,7 @@ export default function BeneficiaryModal({
     bankAccount: "",
     amountTransfer: "",
   });
-
+  const {user} = useUser();
   const {currentTemplateId} = useTemplate();
   const modalTitle = isEditMode ? `${formData.name}` : "Add Beneficiary";
 
@@ -83,8 +84,8 @@ export default function BeneficiaryModal({
     console.log(currentTemplateId);
 
     const commonPayload = {
-        companyId: "107703412124664160183", // TODO: Ambil dari cookie/session nanti
-        companyName: "NusaPay",             // TODO: Ambil dari auth
+        companyId: user?._id!, // TODO: Ambil dari cookie/session nanti
+        companyName: process.env.NEXT_PUBLIC_COMPANY_NAME!,             // TODO: Ambil dari auth
         name: formData.name,
         bankCode: "014",                    // TODO: Bisa pakai enum/mapping dari nama bank
         bankAccountName: formData.bankAccountName,
@@ -94,7 +95,7 @@ export default function BeneficiaryModal({
         amountTransfer: Number.parseFloat(formData.amountTransfer),
         currency: formData.currency || "USDC",
         localCurrency: formData.localCurrency || "IDR",
-        groupId : currentTemplateId ?? "685e122d7d02fb265fac7dce" // harusnya diganti dengan bisa menyesuaikan skrg lagi ada di template apa
+        groupId : currentTemplateId!// harusnya diganti dengan bisa menyesuaikan skrg lagi ada di template apa
       };
     
       if (isEditMode && employee) {

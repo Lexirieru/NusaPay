@@ -87,7 +87,10 @@ const Navbar: React.FC = () => {
           <button
             className="relative z-10 bg-gradient-to-r from-[#1F1F1F] to-[#00B8FF] 
             text-white font-semibold px-5 py-2 rounded-full shadow hover:scale-105
-            transition duration-300 hover:cursor-pointer"
+            transition duration-300 hover:cursor-pointer" onClick={() => {
+              window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google`;
+            }
+          }
           >
             <span className="relative z-20">Connect Wallet</span>
           </button>

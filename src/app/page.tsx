@@ -21,6 +21,7 @@ import { AlertDialogDescription } from "@radix-ui/react-alert-dialog"
 import ProcessingModal from "@/components/modals/ProcessLoading"
 import { addGroupName, deleteEmployeeData, editEmployeeData, loadEmployeeData, loadGroupName } from "@/api"
 import { TemplateProvider, useTemplate } from "@/lib/TemplateContext"
+import { UserProvider, useUser } from "@/lib/UserContext"
 
 export default function Dashboard() {
   const [templates, setTemplates] = useState<Template[]>([])
@@ -32,29 +33,33 @@ export default function Dashboard() {
   const [showTransferAlert, setShowTransferAlert] = useState(false)
   const [showProcessingModal, setShowProcessingModal] = useState(false)
   const [showInvoiceModal, setShowInvoiceModal] = useState(false)
+  const { user, loading } = useUser();
+
+
 
   // Fetch all templates first
   useEffect(() => {
+    if (loading || !user?._id) return; // ⛔ jangan fetch dulu kalau loading atau user belum ada
+  
     const fetchTemplatesAndEmployees = async () => {
       try {
+        console.log( user); // Debug
         const groupTemplates = await loadGroupName({
-          companyId: process.env.NEXT_PUBLIC_COMPANY_ID!,
+          companyId: user._id,
         });
-        console.log(groupTemplates)
-
+  
         const templatesWithEmptyRecipients: Template[] = groupTemplates.map((group: any) => ({
           groupId: group.groupId,
           companyId: group.companyId,
           companyName: group.companyName,
           nameOfGroup: group.nameOfGroup,
-          recipients: group.employees, // Recipients diisi setelah template dipilih
+          recipients: group.employees,
           createdAt: new Date(group.createdAt),
           updatedAt: new Date(group.updatedAt),
         }));
-
+  
         setTemplates(templatesWithEmptyRecipients);
-
-        // Default pilih yang pertama (opsional)
+  
         if (templatesWithEmptyRecipients.length > 0) {
           handleTemplateSwitch(templatesWithEmptyRecipients[0].groupId);
         }
@@ -62,9 +67,9 @@ export default function Dashboard() {
         console.error("Failed to fetch templates", err);
       }
     };
-
+  
     fetchTemplatesAndEmployees();
-  }, []);
+  }, [loading, user]); // ✅ Tambahkan dependency ke user dan loading
 
   const handleTemplateSwitch = async (templateId: string) => {
     const selected = templates.find((t) => t.groupId === templateId);
@@ -101,10 +106,11 @@ export default function Dashboard() {
   };
 
   const handleCreateTemplate = async (templateName: string) => {
-
+    console.log(user?._id)
+    console.log(user)
     const newTemplate = {
       groupId: `${Date.now()}`,
-      companyId: process.env.NEXT_PUBLIC_COMPANY_ID!,
+      companyId: user?._id!,
       companyName: process.env.NEXT_PUBLIC_COMPANY_NAME!,
       nameOfGroup: templateName,
       recipients: [],
@@ -173,10 +179,15 @@ export default function Dashboard() {
     setShowBeneficiaryModal(false);
   };
   
-
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-white text-lg animate-pulse">Loading user...</p>
+      </div>
+    );
+  }
   return (
-    <TemplateProvider>
-
+    
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       <main className="relative z-10 p-6 pb-32">
         <div className="flex items-center justify-center">
@@ -263,7 +274,7 @@ export default function Dashboard() {
         />
       )}
     </div>
-    </TemplateProvider>
+
     
   );
 }

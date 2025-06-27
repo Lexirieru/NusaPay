@@ -73,28 +73,11 @@ api.interceptors.response.use(
 // =====================
 // HOOK CEK AUTH
 // =====================
-export const useAuthCheck = () => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await api.get<AuthResponse>("/check-auth");
-        if (res.data.authenticated && res.data.user) {
-          setUser(res.data.user);
-        } else {
-          router.push("/login");
-        }
-      } catch (err) {
-        router.push("/login");
-      }
-    };
-
-    checkAuth();
-  }, [router]);
-
-  return user;
+export const fetchCurrentUser = async () => {
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/me`, {
+    withCredentials: true, // ⬅️ penting agar cookie terkirim!
+  });
+  return response.data; // { id, email, googleId }
 };
 
 // =====================
