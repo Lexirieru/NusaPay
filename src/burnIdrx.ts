@@ -779,43 +779,58 @@ const { ethers } = require("ethers");
 import dotenv from "dotenv";
 dotenv.config();
 
-const ALCHEMY_RPC_URL = process.env.ALCHEMY_RPC_URL!;
-const WALLET_PRIVATE_KEY = process.env.PRIVATE_KEY!;
 const IDRX_CONTRACT_ADDRESS = "0x18Bc5bcC660cf2B9cE3cd51a404aFe1a0cBD3C22";
 
-const provider = new ethers.providers.JsonRpcProvider(ALCHEMY_RPC_URL);
+const provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL!); // rpcnya chain base mainnet 
+const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
 
-const signer = new ethers.Wallet(WALLET_PRIVATE_KEY, provider);
+const idrxContract = new ethers.Contract(IDRX_CONTRACT_ADDRESS, idrxAbi, provider);
+const idrxContractSigner = idrxContract.connect(signer);
 
-async function checkETHBalance() {
+export async function checkETHBalance() {
   const balance = await provider.getBalance(signer.address);
   console.log("ETH balance:", ethers.utils.formatEther(balance));
 }
 
-checkETHBalance();
+export async function checkIDRXBalance(){
+  const idrxContract = new ethers.Contract(IDRX_CONTRACT_ADDRESS, idrxAbi, provider);
 
-export async function burnIdrx(amount: string, bankAccountNumber: string) {
-  const hashBankAccountNumber = await sha256(bankAccountNumber).toString();
+  const signerAddress = await signer.getAddress();
+  console.log("Signer Address:", signerAddress);
 
-  const idrxContract = new ethers.Contract(
-    IDRX_CONTRACT_ADDRESS,
-    idrxAbi,
-    provider
-  );
+  const idrxBalance = await idrxContract.balanceOf(signerAddress);
+  console.log("IDRX Balance:", ethers.utils.formatUnits(idrxBalance, 5));
 
-  const idrxContractSigner = idrxContract.connect(signer);
+  const decimals = await idrxContract.decimals();
+  console.log("IDRX decimals:", decimals);
+}
 
-  const parsedAmount = ethers.utils.parseUnits(amount, 18);
+checkIDRXBalance();
 
-  const tx = await idrxContractSigner.burnWithAccountNumber(
-    parsedAmount,
-    hashBankAccountNumber
-  );
+export async function checkGasFeeEstimation(amount: string, bankAccount : string, bankAccountNumber: string){
+  const bank = `${bankAccount}_${bankAccountNumber}`;
+  const hashBankAccountNumber = await sha256(bank).toString();
+
+  const parsedAmount = ethers.utils.parseUnits(amount, 2); // ✅ 2 decimals
+
+  const estimatedGas = await idrxContractSigner.estimateGas.burnWithAccountNumber(parsedAmount, hashBankAccountNumber);
+  
+  console.log(estimatedGas)
+}
+
+
+export async function burnIdrx(amount: string, bankAccount : string, bankAccountNumber: string) {
+  const bank = `${bankAccount}_${bankAccountNumber}`;
+  const hashBankAccountNumber = await sha256(bank).toString();
+
+  // Jika IDRX decimals = 2, maka 21000 IDRX = 2100000
+  const parsedAmount = ethers.utils.parseUnits(amount, 2); // ✅ 2 decimals
+
+  const tx = await idrxContractSigner.burnWithAccountNumber(parsedAmount, hashBankAccountNumber);
+  
   await tx.wait();
-
   const txHash = tx.hash;
+  console.log("txHash: ", txHash);
 
-  console.log("txHash: ");
-  console.log(txHash);
   return txHash;
 }

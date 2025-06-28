@@ -20,13 +20,13 @@ export function generateSignatureForRedeem(
   bankAccountName: string,
   walletAddress: string
 ) {
+
+
   const r_METHOD = "POST";
   const r_URL_ENDPOINT = "/api/transaction/redeem-request";
 
   const r_body = {
     txHash,
-    // payrollId,
-    // company,
     networkChainId,
     amountTransfer,
     bankAccount,
@@ -35,6 +35,7 @@ export function generateSignatureForRedeem(
     bankAccountName,
     walletAddress,
   };
+
   const r_timestamp = Date.now().toString(); // current time in ms
   if (!SECRET_KEY) throw new Error("Missing secret key");
 
@@ -47,6 +48,7 @@ export function generateSignatureForRedeem(
   );
   return { r_signature, r_METHOD, r_URL_ENDPOINT, r_timestamp, r_body };
 }
+
 // fungsi customku generate signature untuk swap
 export function generateSignatureForSwap() {
   const s_METHOD = "GET";
