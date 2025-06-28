@@ -41,7 +41,7 @@ const main = async () => {
       employee,
       networkChainId,
       walletAddress,
-      amount,
+      amountFiat,
       bankAccount,
       bankCode,
       bankName,
@@ -49,26 +49,21 @@ const main = async () => {
       event
     ) => {
       console.log(`[EVENT RECEIVED]`);
-    
-      const amountFiat = "21000"; // "20000"
-      
-      const baseBigNumber = new BigNumber(amountFiat);
-      const multiplier = new BigNumber(10).pow(18);
-      const amountBigNumber = baseBigNumber.multipliedBy(multiplier).toFixed(0);
+  
       
       console.log({
         // payrollId,
         // company,
         networkChainId: networkChainId.toString(),
         amountFiat, // Pastikan string
-        amountBigNumber,
         bankAccount,
         bankCode,
         bankName,
         bankAccountName,
         walletAddress,
       });
-      await checkGasFeeEstimation(amountFiat,bankName,bankAccount);
+
+      // await checkGasFeeEstimation(amountFiat,bankName,bankAccount);
     
       // listen to payrollApproved, generate signature (swap ke idrx), hit api swap rate usdc -> idrx, burn idrx, generate signature (redeem), post redeem,
 
@@ -93,13 +88,13 @@ const main = async () => {
       // }
 
       // BURN idrx disini
-      // const txHash = await burnIdrx(amountFiat, bankName, bankAccount);
-      // console.log(txHash)
+      const txHash = await burnIdrx(amountFiat, bankName, bankAccount);
+      console.log(txHash)
       
       // // generate signature untuk redeem disini
       const { r_signature, r_METHOD, r_URL_ENDPOINT, r_timestamp, r_body } =
         generateSignatureForRedeem(
-          "0x37934d7778111fc74a50c351c48d553196185e5ad349b56638b31060ccf0a76e",
+          txHash,
           networkChainId,
           amountFiat,
           bankAccount,
