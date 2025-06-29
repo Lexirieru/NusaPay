@@ -11,7 +11,11 @@ const navItems = [
     href: "https://twitter.com/nusapayfinance",
     external: true,
   },
-  { label: "Docs", href: "/docs", external: false },
+  {
+    label: "Docs",
+    href: "https://nusapay.gitbook.io/nusapay/",
+    external: true,
+  },
   {
     label: "GitHub",
     href: "https://github.com/Lexirieru/NusaPay",
@@ -48,15 +52,15 @@ const Navbar: React.FC = () => {
       >
         {/* Logo */}
         <div className="w-45">
-        <Link href="/" className="relative z-10 group">
-          <Image src="/logonusa.png" alt="Logo" width={53} height={61} />
-          <div
-            className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2
+          <Link href="/" className="relative z-10 group">
+            <Image src="/logonusa.png" alt="Logo" width={53} height={61} />
+            <div
+              className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2
             w-[120px] h-[120px] bg-cyan-400/40 rounded-full blur-2xl opacity-80
             scale-100 group-hover:scale-135 transition-transform duration-500 pointer-events-none origin-left"
-          />
-        </Link>
-          </div>
+            />
+          </Link>
+        </div>
         {/* Desktop Nav Items */}
         <ul className="hidden lg:flex items-center space-x-12 text-white font-semibold z-10">
           {navItems.map(({ label, href, external }) => (
@@ -88,10 +92,10 @@ const Navbar: React.FC = () => {
           <button
             className="relative z-10 bg-gradient-to-r from-[#1F1F1F] to-[#00B8FF] 
             text-white font-semibold px-10 py-2 rounded-full shadow hover:scale-105 border-y-1
-            transition duration-300 hover:cursor-pointer" onClick={() => {
+            transition duration-300 hover:cursor-pointer"
+            onClick={() => {
               window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google`;
-            }
-          }
+            }}
           >
             <span className="relative z-20">Get Started</span>
           </button>
