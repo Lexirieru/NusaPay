@@ -52,21 +52,25 @@ export const main = async () => {
     "PayrollApproved",
     async (
       txId,
-      userId,
+      companyId,
+      templateName,
+      amount,
+      recipients,
       IDRX_API_KEY,
       IDRX_SECRET_KEY,
-      PRIVATE_KEY,
-      amount
+      PRIVATE_KEY
     ) => {
       console.log(`[EVENT RECEIVED]`);
 
       console.log({
         txId,
-        userId,
+        companyId,
+        templateName,
+        amount,
+        recipients,
         IDRX_API_KEY,
         IDRX_SECRET_KEY,
         PRIVATE_KEY,
-        amount,
       });
       amount = ethers.utils.formatUnits(amount, 6);
       console.log(amount);
@@ -75,11 +79,13 @@ export const main = async () => {
       // idrx secret key, dan private key wallet di payloadnya
       await doMinting(
         txId,
-        userId,
+        companyId,
+        templateName,
+        amount.toString(),
+        recipients,
         IDRX_API_KEY,
         IDRX_SECRET_KEY,
-        PRIVATE_KEY,
-        amount.toString()
+        PRIVATE_KEY
       );
     }
   );

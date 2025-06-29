@@ -6,7 +6,7 @@ import {
   addPayrollDetailsData,
   loadPayrollData,
   loadPayrollDetailsData,
-  addInvoiceData,
+  loadTransactionStatusData,
   loadInvoiceData,
 } from "../controllers/transactionController";
 
@@ -38,11 +38,7 @@ type RouteDefinition = {
 
 const routes: RouteDefinition[] = [
   // Payroll data
-  {
-    method: "post",
-    path: "/addInvoiceData",
-    action: addInvoiceData,
-  },
+
   {
     method: "get",
     path: "/loadInvoiceData",

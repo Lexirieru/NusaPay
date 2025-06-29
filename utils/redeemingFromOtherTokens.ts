@@ -3,7 +3,7 @@ import axios from "axios";
 import { ethers } from "ethers";
 import usdcABI from "../abi/usdcABI.json"; // ABI ERC20
 import erc20ABI from "../abi/erc20ABI.json"; // ABI ERC20
-import { recordTransactionToDB } from "../controllers/transactionController";
+import { saveInvoiceData } from "../controllers/transactionController";
 
 // const apiKey = process.env.IDRX_API_KEY;
 // const secret = process.env.IDRX_SECRET_KEY!;
@@ -65,11 +65,13 @@ export async function getBankAccounts(apiKey: string, secret: string) {
 }
 
 export async function sendToken(
-  recipient: string,
-  amount: string,
-  PRIVATE_KEY: string,
   txId: string,
-  userId: string
+  companyId: string,
+  templateName: string,
+  amount: string,
+  recipient: { employeeId: string; amount: number }[],
+  recipientAddress: string,
+  PRIVATE_KEY: string
 ) {
   const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
   // udah connect ke smart contract USDC di base dan connect ke walletku
@@ -79,18 +81,22 @@ export async function sendToken(
   if (Number(amount) <= 0) {
     throw new Error("Amount must be greater than zero");
   }
-  const amountInWei = ethers.utils.parseUnits(amount, decimals);
-
-  //   const tx = await usdc.transfer(recipient, amountInWei);
+  if (!recipientAddress) {
+    throw new Error("Recipient address is required");
+  }
+  // const amountInWei = ethers.utils.parseUnits(amount, decimals);
+  //   const tx = await usdc.transfer(recipientAddress, amountInWei);
   //   await tx.wait();
   //   const txHash = tx.hash;
+
   const txHash = "34424";
-  await recordTransactionToDB({
+  await saveInvoiceData({
     txId,
-    userId,
+    companyId,
+    templateName,
     txHash,
-    recipient,
     amount: parseFloat(amount), // dari "1.3" → 1.3 (number)
+    recipient,
   });
 
   console.log(`USDC sent to ${recipient}: txHash = ${txHash}`);
@@ -98,15 +104,25 @@ export async function sendToken(
 
 export async function doMinting(
   txId: string,
-  userId: string,
+  companyId: string,
+  templateName: string,
+  amount: string,
+  recipients: { employeeId: string; amount: number }[],
   IDRX_API_KEY: string,
   IDRX_SECRET_KEY: string,
-  PRIVATE_KEY: string,
-  amount: string
+  PRIVATE_KEY: string
 ) {
   const recipientAddress = await getBankAccounts(IDRX_API_KEY, IDRX_SECRET_KEY);
   console.log(recipientAddress);
-  await sendToken(recipientAddress, amount, PRIVATE_KEY, txId, userId);
+  await sendToken(
+    txId,
+    companyId,
+    templateName,
+    amount,
+    recipients,
+    recipientAddress,
+    PRIVATE_KEY
+  );
 }
 
 // doSimulation();

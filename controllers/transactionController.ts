@@ -4,24 +4,29 @@ import { TransactionRecordModel } from "../models/transactionRecordModel";
 import mongoose from "mongoose";
 import axios from "axios";
 
-export async function recordTransactionToDB({
+// dari sc pas nge emitnya harus ada data data ini sehingga
+// ntar mbuat invoicenya ga dari fe tapi dari listening eventnya SC
+export async function saveInvoiceData({
   txId,
-  userId,
+  companyId,
+  templateName,
   txHash,
-  recipient,
   amount,
+  recipient,
 }: {
   txId: string;
-  userId: string;
+  companyId: string;
+  templateName: string;
+  recipient: { employeeId: string; amount: number }[];
   txHash: string;
-  recipient: string;
   amount: number;
 }) {
   const newTx = new TransactionRecordModel({
     txId,
-    userId,
-    txHash,
+    companyId,
+    templateName,
     recipient,
+    txHash,
     amount,
     status: "PENDING",
   });
@@ -30,49 +35,52 @@ export async function recordTransactionToDB({
   console.log(`✅ Transaction recorded to DB: ${txHash}`);
 }
 
-export async function addInvoiceData(req: Request, res: Response) {}
-
-export async function loadInvoiceData(req: Request, res: Response) {}
-// buat controller untuk ngasih akses ke FE biar bisa akses status berdasarkan txIdnya
-export async function loadTransactionStatusData(req: Request, res: Response) {
-  const { txHash } = req.body;
+export async function loadInvoiceData(req: Request, res: Response) {
+  const { txId } = req.body;
 
   try {
     // Ambil 5 data terbaru berdasarkan timestamp (atau bisa juga pakai _id)
-    const latestPayrolls = await TransactionRecordModel.findOne({ txHash });
+    const invoice = await TransactionRecordModel.findOne({ txId });
+    if (!invoice) {
+      res.status(404).json({
+        message: "Invoice not found",
+      });
+    } else {
+      const latestStatus = await loadTransactionStatusData(invoice.txHash);
+      invoice.status = latestStatus || "PENDING";
 
-    try {
-      const response = await axios.get(
-        `https://idrx.co/api/transaction/user-transaction-history?transactionType=DEPOSIT_REDEEM&txHash=${txHash}&page=1&take=1`
-      );
-      if (!response.data) {
-        res.status(400).json({
-          status: response.data.records[0].status,
-        });
-      } else {
-        console.log(response);
-        console.log("[API Response]", response.data);
-        res.status(201).json({
-          status: response.data.records[0].status,
-        });
-      }
-    } catch (err: any) {
-      console.error("[Failed to call redeem-request]", err);
-      res.status(500).json({
-        message: "Error fetching transaction status from IDRX",
-        err: err.message,
+      await invoice.save();
+
+      res.status(200).json({
+        message: "Successfully fetched latest invoices",
+        data: invoice,
       });
     }
-
-    res.status(200).json({
-      message: "Successfully fetched latest payrolls",
-      data: latestPayrolls,
-    });
   } catch (err: any) {
     res.status(500).json({
       message: "Error fetching data",
       error: err.message,
     });
+  }
+}
+// buat controller untuk ngasih akses ke FE biar bisa akses status berdasarkan txIdnya
+export async function loadTransactionStatusData(txHash: string) {
+  try {
+    const response = await axios.get(
+      `https://idrx.co/api/transaction/user-transaction-history?transactionType=DEPOSIT_REDEEM&txHash=${txHash}&page=1&take=1`
+    );
+    if (!response.data) {
+      console.log(response.data);
+      return response.data;
+    } else {
+      console.log(response);
+      console.log("[API Response]", response.data);
+      console.log(response.data.records[0].status);
+      return response.data.records[0].status;
+    }
+  } catch (err: any) {
+    console.error("[Failed to call redeem-request]", err);
+    // return err.message;
   }
 }
 
