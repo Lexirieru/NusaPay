@@ -1,7 +1,10 @@
 import express, { Request, Response, Router } from "express";
 import passport from "passport";
 import { Strategy as GoogleStrategy, Profile } from "passport-google-oauth20";
-import { CompanyDataModel, LoginSessionTokenModel } from "../models/companyModel";
+import {
+  CompanyDataModel,
+  LoginSessionTokenModel,
+} from "../models/companyModel";
 import { generateToken } from "../config/generateToken";
 import { verifyToken } from "../middleware/checkTokenAuthentication";
 import { checkSession } from "../config/checkSession";
@@ -71,7 +74,7 @@ passport.deserializeUser((user, done) => {
 
 router.get("/me", checkSession, async (req, res) => {
   const user = req.user as any;
-  console.log(user)
+  console.log(user);
   const payload = {
     _id: user.id?.toString(),
     email: user.email,
@@ -106,10 +109,11 @@ router.get(
         email: userToUse.email,
       });
       const tokenSession = new LoginSessionTokenModel({
-        email, token
+        email,
+        token,
       });
 
-      await tokenSession.save()
+      await tokenSession.save();
       res.cookie("user_session", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -117,13 +121,12 @@ router.get(
         maxAge: 30 * 24 * 60 * 60 * 1000, // 1 hari
       });
 
-      res.redirect(`${process.env.FRONTEND_URL}/`);
+      res.redirect(`${process.env.FRONTEND_URL}/transfer`);
     } else {
       res.redirect(`${process.env.FRONTEND_URL}/auth/error`);
     }
   }
 );
-
 
 // LOGOUT
 router.post("/logout", (req: Request, res: Response) => {

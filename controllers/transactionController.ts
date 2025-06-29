@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { PayrollModel, PayrollDetailModel } from "../models/payrollModel"; // Pastikan path-nya benar
 import { TransactionRecordModel } from "../models/transactionRecordModel";
 import mongoose from "mongoose";
+import axios from "axios";
 
 export async function recordTransactionToDB({
   txId,
@@ -29,7 +30,41 @@ export async function recordTransactionToDB({
   console.log(`✅ Transaction recorded to DB: ${txHash}`);
 }
 
-// buat controller untuk ngasih akses ke FE biar bisa akses status berdasarkan txIdnya 
+// buat controller untuk ngasih akses ke FE biar bisa akses status berdasarkan txIdnya
+export async function loadTransactionStatusData(req: Request, res: Response) {
+  const { txHash } = req.body;
+
+  try {
+    // Ambil 5 data terbaru berdasarkan timestamp (atau bisa juga pakai _id)
+    const latestPayrolls = await TransactionRecordModel.find({ txHash })
+      .sort({ timestamp: -1 }) // descending (terbaru di atas)
+      .limit(5)
+      .lean(); // supaya hasilnya plain JS object dan lebih cepat
+
+    // try {
+    //   // const response = await axios.get(
+    //   //   `https://idrx.co/api/transaction/user-transaction-history transactionType=DEPOSIT_REDEEM&txHash=${txHash}&page=1&take=1`
+    //   // );
+    //   // res.status(201).json({
+    //   //   status: response.records[0].status,
+    //   // });
+
+    //   console.log("[API Response]", response.data);
+    // } catch (err) {
+    //   console.error("[Failed to call redeem-request]", err);
+    // }
+
+    res.status(200).json({
+      message: "Successfully fetched latest payrolls",
+      data: latestPayrolls,
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      message: "Error fetching data",
+      error: err.message,
+    });
+  }
+}
 
 export async function addPayrollData(req: Request, res: Response) {
   const {

@@ -5,7 +5,11 @@ import {
   generateSignatureForSwap,
   generateSignatureForRedeem,
 } from "../utils/generate_signature";
-import { burnIdrx, checkGasFeeEstimation, checkIDRXBalance } from "../utils/burnIdrx";
+import {
+  burnIdrx,
+  checkGasFeeEstimation,
+  checkIDRXBalance,
+} from "../utils/burnIdrx";
 import axios from "axios";
 
 import BigNumber from "bignumber.js";
@@ -52,21 +56,20 @@ const main = async () => {
   contract.on(
     "PayrollApproved",
     async (
-      payrollId,
-      company,
-      employee,
-      networkChainId,
-      walletAddress,
-      amountFiat,
-      bankAccount,
-      bankCode,
-      bankName,
-      bankAccountName,
-      event
+      payrollId: string,
+      company: string,
+      employee: string,
+      networkChainId: string,
+      walletAddress: string,
+      amountFiat: string,
+      bankAccount: string,
+      bankCode: string,
+      bankName: string,
+      bankAccountName: string,
+      event: string
     ) => {
       console.log(`[EVENT RECEIVED]`);
-  
-      
+
       console.log({
         // payrollId,
         // company,
@@ -78,7 +81,7 @@ const main = async () => {
         bankAccountName,
         walletAddress,
       });
-    
+
       // listen to payrollApproved, generate signature (swap ke idrx), hit api swap rate usdc -> idrx, burn idrx, generate signature (redeem), post redeem,
 
       // // generate signature (swap ke idrx)
@@ -103,8 +106,8 @@ const main = async () => {
 
       // BURN idrx disini
       const txHash = await burnIdrx(amountFiat, bankName, bankAccount);
-      console.log(txHash)
-      
+      console.log(txHash);
+
       // // generate signature untuk redeem disini
       const { r_signature, r_METHOD, r_URL_ENDPOINT, r_timestamp, r_body } =
         generateSignatureForRedeem(
@@ -121,12 +124,15 @@ const main = async () => {
       // // // panggil API REDEEM_REQUEST IDRX disini
       const API_KEY = process.env.IDRX_API_KEY!;
       try {
-        console.log("Request payload ke IDRX:", JSON.stringify({
-          chainId: r_body.networkChainId.toString(),
-          txHash: r_body.txHash,
-          signature: r_signature,
-          timestamp : r_timestamp
-        }));
+        console.log(
+          "Request payload ke IDRX:",
+          JSON.stringify({
+            chainId: r_body.networkChainId.toString(),
+            txHash: r_body.txHash,
+            signature: r_signature,
+            timestamp: r_timestamp,
+          })
+        );
 
         const response = await axios.post(
           "https://idrx.co/api/transaction/redeem-request",
@@ -144,8 +150,8 @@ const main = async () => {
           txHash,
           signature: r_signature,
           timestamp: r_timestamp,
-        })
-        
+        });
+
         console.log("[API Response]", response.data);
       } catch (err) {
         console.error("[Failed to call redeem-request]", err);
