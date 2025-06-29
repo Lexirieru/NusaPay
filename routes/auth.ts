@@ -22,6 +22,7 @@ router.get("/check-auth", verifyToken, (req: Request, res: Response) => {
       id: user._id,
       email: user.email,
       companyName: user.companyName || null,
+      profilePicture: user.profilePicture || null,
     },
   });
 });
@@ -110,6 +111,9 @@ router.get(
       const token = generateToken({
         id: userToUse._id?.toString(),
         email: userToUse.email,
+        companyName:
+          userToUse.companyName || userToUse.name || userToUse.displayName,
+        profilePicture: userToUse.profilePicture || "",
       });
       const tokenSession = new LoginSessionTokenModel({
         email,

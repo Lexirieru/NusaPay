@@ -20,6 +20,8 @@ export const checkSession = (
       profilePicture?: string;
     };
 
+    console.log(decoded);
+
     // Simpan data user hasil decode ke request
     req.user = decoded;
 
