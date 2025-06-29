@@ -36,7 +36,7 @@ export default function Homepage() {
 
         {/* Subtitle */}
         <p className="text-cyan-400 text-sm sm:text-base md:text-lg font-medium mb-10">
-          A Cross Border Payment Website Powered by IDRX
+          The First Cross-Chain Cross Border Payment using Chainlink CCIP
         </p>
 
         {/* Button */}
