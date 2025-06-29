@@ -43,10 +43,11 @@ const Navbar: React.FC = () => {
     <>
       <nav
         className={`fixed top-0 z-50 w-full h-[74px] px-6 sm:px-8 flex items-center justify-between
-        backdrop-blur-xl backdrop-saturate-200 bg-white/5 shadow-md transition-transform duration-500 ease-in-out
-        ${showNavbar ? "translate-y-0" : "-translate-y-full"} relative overflow-hidden`}
+        backdrop-blur-xl backdrop-saturate-200 bg-white/5 shadow-md transition-transform duration-300 ease-in-out
+        ${showNavbar ? "translate-y-0" : "-translate-y-full"} overflow-hidden`}
       >
         {/* Logo */}
+        <div className="w-45">
         <Link href="/" className="relative z-10 group">
           <Image src="/logonusa.png" alt="Logo" width={53} height={61} />
           <div
@@ -55,7 +56,7 @@ const Navbar: React.FC = () => {
             scale-100 group-hover:scale-135 transition-transform duration-500 pointer-events-none origin-left"
           />
         </Link>
-
+          </div>
         {/* Desktop Nav Items */}
         <ul className="hidden lg:flex items-center space-x-12 text-white font-semibold z-10">
           {navItems.map(({ label, href, external }) => (
@@ -86,13 +87,13 @@ const Navbar: React.FC = () => {
           />
           <button
             className="relative z-10 bg-gradient-to-r from-[#1F1F1F] to-[#00B8FF] 
-            text-white font-semibold px-5 py-2 rounded-full shadow hover:scale-105
+            text-white font-semibold px-10 py-2 rounded-full shadow hover:scale-105 border-y-1
             transition duration-300 hover:cursor-pointer" onClick={() => {
               window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google`;
             }
           }
           >
-            <span className="relative z-20">Connect Wallet</span>
+            <span className="relative z-20">Get Started</span>
           </button>
         </div>
 
@@ -126,10 +127,10 @@ const Navbar: React.FC = () => {
 
           {/* Connect Button in Mobile */}
           <button
-            className="bg-gradient-to-r from-[#1F1F1F] to-[#00B8FF] text-white font-semibold px-6 py-3 rounded-full shadow"
+            className="bg-gradient-to-r from-[#1F1F1F] to-[#00B8FF] text-white font-semibold px-6 py-3 rounded-full shadow border-y-1"
             onClick={() => setMobileMenuOpen(false)}
           >
-            Connect Wallet
+            Get Started
           </button>
         </div>
       )}

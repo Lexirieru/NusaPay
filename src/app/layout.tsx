@@ -27,7 +27,7 @@ export default function RootLayout({
     <UserProvider>
       <TemplateProvider>
         <Navbar />
-        <div className=" px-4">{children}</div>
+        <div className=" px-4 pt-[74px]">{children}</div>
       </TemplateProvider>
     </UserProvider>
       </body>
