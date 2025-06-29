@@ -5,12 +5,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { RxHamburgerMenu, RxCross2 } from "react-icons/rx";
 import { getMe } from "@/utils/auth";
+import { CgProfile } from "react-icons/cg";
+import { IoWalletOutline } from "react-icons/io5";
+import { FaHistory } from "react-icons/fa";
+import { BiLogOutCircle } from "react-icons/bi";
 
 interface UserData {
   _id: string;
   email: string;
   profilePicture?: string;
 }
+
 
 const navItems = [
   {
@@ -31,6 +36,8 @@ const navItems = [
 ];
 
 const Navbar: React.FC = () => {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+const buttonRef = useRef<HTMLButtonElement>(null);
   const [showNavbar, setShowNavbar] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lastScrollY = useRef(0);
@@ -53,6 +60,24 @@ const Navbar: React.FC = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [showDropdown]);
+
+  useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(event.target as Node) &&
+      buttonRef.current &&
+      !buttonRef.current.contains(event.target as Node)
+    ) {
+      setShowDropdown(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -118,8 +143,9 @@ const Navbar: React.FC = () => {
         {user ? (
           <div className="hidden lg:block relative group z-10">
             <button
-              className="flex items-center gap-2 bg-gradient-to-r from-[#0E0E0E] to-[#237181] px-4 py-0 rounded-2xl border-y-1 hover:bg-[#2A2A2A] transition"
-              onClick={() => setShowDropdown(!showDropdown)}
+            ref={buttonRef}
+              className="flex items-center cursor-pointer gap-2 bg-gradient-to-r from-[#0E0E0E] to-[#237181] px-4 py-0 rounded-2xl border-y-1 border-white/30 hover:bg-[#2A2A2A] transition"
+              onClick={() => setShowDropdown((prev) => !prev)}
             >
               <Image
                 src={user.profilePicture || "/profile-placeholder.png"}
@@ -135,10 +161,14 @@ const Navbar: React.FC = () => {
                 </p>
               </div>
             </button>
-
+            
             {/* DROPDOWN */}
-            {showDropdown && (
-              <div className="absolute top-[120%] right-0 bg-[#1A1A1A] rounded-xl shadow-lg w-72 z-50 border border-white/10 p-4">
+            <div
+            ref={dropdownRef}
+  className={`absolute top-[120%] right-0 bg-[#1A1A1A] rounded-xl shadow-lg w-72 z-50 border-white/20 border-x-1 p-4
+    transition-all duration-300 ease-in-out
+    ${showDropdown ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-2 pointer-events-none"}`}
+>
                 {/* Profil Section */}
                 <div className="flex items-center gap-3 mb-4">
                   <Image
@@ -186,31 +216,40 @@ const Navbar: React.FC = () => {
                 {/* Menu Items */}
                 <div className="flex flex-col space-y-1 text-sm">
                   <button
-                    className="flex items-center justify-between px-4 py-2 text-cyan-300 border-b-1 border-cyan-300 hover:bg-[#2F2F2F]"
+                    className="flex items-center justify-between px-2 py-2 text-cyan-300
+                    relative after:absolute after:bottom-[-2px] after:left-1/2 after:-translate-x-1/2
+             after:w-0 after:h-[2px] after:bg-cyan-400/55 after:rounded-full after:transition-all after:duration-300
+             hover:after:w-[84%]"
                     onClick={() => (window.location.href = "/profile")}
                   >
                     <span className="flex items-center gap-2">
-                      <i className="ri-user-line" />
+                      <CgProfile className="scale-150 w-5" />
                       My Profile
                     </span>
                     <span>›</span>
                   </button>
                   <button
-                    className="flex items-center justify-between px-4 py-2 text-cyan-300 border-b-1 border-cyan-300 hover:bg-[#2F2F2F]"
+                    className="flex items-center justify-between px-2 py-2 text-cyan-300
+                    relative after:absolute after:bottom-[-2px] after:left-1/2 after:-translate-x-1/2
+             after:w-0 after:h-[2px] after:bg-cyan-400/55 after:rounded-full after:transition-all after:duration-300
+             hover:after:w-[84%]"
                     onClick={() => (window.location.href = "/wallet")}
                   >
                     <span className="flex items-center gap-2">
-                      <i className="ri-wallet-line" />
+                      <IoWalletOutline className="scale-150 w-5" />
                       Wallet Account
                     </span>
                     <span>›</span>
                   </button>
                   <button
-                    className="flex items-center justify-between px-4 py-2 text-cyan-300 border-b-1 border-cyan-300 hover:bg-[#2F2F2F]"
+                    className="flex items-center justify-between px-2 py-2 text-cyan-300
+                    relative after:absolute after:bottom-[-2px] after:left-1/2 after:-translate-x-1/2
+             after:w-0 after:h-[2px] after:bg-cyan-400/55 after:rounded-full after:transition-all after:duration-300
+             hover:after:w-[84%]"
                     onClick={() => (window.location.href = "/transactions")}
                   >
                     <span className="flex items-center gap-2">
-                      <i className="ri-time-line" />
+                      <FaHistory className="scale-120 w-5" />
                       History Transactions
                     </span>
                     <span>›</span>
@@ -219,7 +258,10 @@ const Navbar: React.FC = () => {
 
                 {/* Sign Out */}
                 <button
-                  className="flex items-center justify-between mt-4 px-4 py-2 text-red-400 hover:bg-[#2F2F2F] rounded-md text-sm w-full"
+                  className="flex items-center justify-between mt-4 px-2 py-2 text-red-400  text-sm w-full
+                  relative after:absolute after:bottom-[-1px] after:left-1/2 after:-translate-x-1/2
+             after:w-0 after:h-[2px] after:bg-red-400/55 after:rounded-full after:transition-all after:duration-300
+             hover:after:w-[84%]"
                   onClick={async () => {
                     await fetch(
                       `${process.env.NEXT_PUBLIC_API_BASE_URL}/logout`,
@@ -232,13 +274,12 @@ const Navbar: React.FC = () => {
                   }}
                 >
                   <span className="flex items-center gap-2">
-                    <i className="ri-logout-box-line" />
+                    <BiLogOutCircle className="scale-150 w-5" />
                     Sign Out
                   </span>
                   <span>›</span>
                 </button>
               </div>
-            )}
           </div>
         ) : (
           <div className="min-w-72 flex justify-end">
