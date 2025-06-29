@@ -19,6 +19,20 @@ export default function InvoicePage() {
   const [error, setError] = useState<string | null>(null);
   const [currentRecipientIndex, setCurrentRecipientIndex] = useState(0);
   console.log("NGENTOD");
+  const [user, setUser] = useState<User | null>(null);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/me", { credentials: "include" });
+        const data = await res.json();
+        setUser(data);
+      } catch (err) {
+        console.error("Failed to fetch user", err);
+      }
+    };
+
+    fetchUser();
+  }, []);
   useEffect(() => {
     const fetchInvoice = async () => {
       try {
@@ -63,7 +77,7 @@ export default function InvoicePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="min-h-[75vh] bg-black text-white flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" className="mb-4" />
           <p className="text-gray-300">Loading invoice...</p>
@@ -74,7 +88,7 @@ export default function InvoicePage() {
 
   if (error || !invoice) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
+      <div className="min-h-[75vh] bg-black text-white flex items-center justify-center p-6">
         <div className="max-w-md w-full">
           <ErrorMessage
             message={error || "Invoice not found"}
@@ -114,7 +128,7 @@ export default function InvoicePage() {
   const description = `Transfer to ${invoice.templateName}`;
 
   return (
-    <div className="min-h-screen bg-black px-4 sm:px-6 py-8 sm:py-10 text-white">
+    <div className="min-h-[75vh] bg-black px-4 sm:px-6 py-8 sm:py-10 text-white">
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 max-w-6xl mx-auto">
         {/* Left Card */}
         <div className="bg-[#1C1C1C] rounded-2xl px-6 sm:px-8 py-7 sm:py-9 w-full lg:w-[40%]">
@@ -129,12 +143,13 @@ export default function InvoicePage() {
           </div>
           <h3 className="font-bold text-base sm:text-lg mb-5">Beneficiary</h3>
           <div className="flex items-center gap-4 mb-8">
-            <div className="bg-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center">
-              {/* <span className="text-white font-bold text-lg">{currentRecipient.name.charAt(0)}</span> */}
-              <span className="text-white font-bold text-lg">
-                {invoice.recipient.charAt(0)}
-              </span>
-            </div>
+            <Image
+  src="/profile-placeholder.png"
+  alt="Profile Picture"
+  width={56}
+  height={56}
+  className="rounded-full object-cover"
+/>
             <p className="font-semibold text-sm">{invoice.recipient}</p>
 
             <span className="ml-auto bg-[#373737] text-[10px] sm:text-xs px-6 sm:px-8 py-1.5 rounded-full">
@@ -232,7 +247,13 @@ export default function InvoicePage() {
                   {title}
                 </p>
                 <div className="flex items-center gap-4 mt-2">
-                  <div className="bg-white w-10 h-10 rounded-full" />
+                  <Image
+                    src="/profile-placeholder.png"
+                    alt="Profile Picture"
+                    width={40}
+                    height={40}
+                    className="rounded-full object-cover"
+                  />
                   <div>
                     <p className="font-semibold text-sm">{name}</p>
                     <p className="text-[10px] font-semibold text-[#818181]">
@@ -253,62 +274,53 @@ export default function InvoicePage() {
           </div>
 
           {/* DESCRIPTION SECTION */}
-          <div className="bg-[#1C1C1C] rounded-2xl px-4 py-3 space-y-3 mt-5">
-            {/* Header */}
-            <div className="flex justify-between text-[10px] sm:text-xs text-gray-400 border-b pt-2 border-white/55 pb-1 px-2 sm:px-8">
-              <p>Description</p>
-              <p>Amount</p>
-            </div>
+<div className="bg-[#1C1C1C] rounded-2xl px-8 py-6 space-y-4 mt-5">
+  {/* Bank */}
+  <div>
+    <p className="lg:text-[10px] text-xs font-bold border-b border-white/30 text-gray-400 pb-1 mb-2">Bank</p>
+    <div className="flex items-center gap-2 border-b border-white/30 pb-2 px-0">
+      <span className="text-xs text-gray-400 font-bold">•</span>
+      <p className="text-white font-semibold text-xs">Bank Negara Indonesia</p>
+    </div>
+  </div>
 
-            {/* Description */}
-            <div className="flex justify-between mt-2 text-xs font-medium border-b border-white/55 pb-1 px-2 sm:px-8">
-              <p className="text-white">• {description}</p>
-              <p className="text-white">{invoice.amount.toLocaleString()}</p>
-            </div>
+  {/* Description + Amount */}
+  <div>
+    <div className="flex justify-between text-[10px] sm:text-xs font-semibold text-gray-400 border-b border-white/30 pb-1 px-0">
+      <p>Description</p>
+      <p>Amount</p>
+    </div>
+    <div className="flex justify-between items-center mt-2 text-xs font-medium border-b border-white/30 pb-2 px-0">
+      <div className="flex items-center gap-2 text-white">
+        {/* INI INDIKATOR STATUS TITIT */}
+        <div className="w-2 h-2 rounded-full bg-red-500" />
+        <p>employee salaries</p>
+      </div>
+      <p className="text-white">{Number(invoice.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+    </div>
+    <p className="text-xs pt-2 font-bold text-white">
+      Status: <span className="text-white/70">On Process</span>
+    </p>
+  </div>
 
-            {/* SPLIT PAYMENT INFO */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4 items-start text-white">
-              {/* LEFT */}
-              <div className="flex flex-col space-y-3 sm:space-y-4 md:items-end sm:border-r border-white/55 sm:pr-4">
-                <p className="text-[10px] sm:text-sm bg-[#2A2A2A] rounded-full w-fit px-5 py-1 text-white">
-                  Payable IN
-                </p>
-                <div className="flex gap-3 flex-row justify-between md:items-end px-4 md:px-0">
-                  <div className="md:text-right">
-                    <p className="text-lg font-bold">Tether</p>
-                    <p className="text-[10px] sm:text-xs font-semibold text-gray-400">
-                      USDT
-                    </p>
-                  </div>
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#2A2A2A]" />
-                </div>
-                <p className="text-[10px] sm:text-[11px] bg-[#2A2A2A] px-3 py-1 rounded-full w-max font-semibold">
-                  Powered by IDRX
-                </p>
-              </div>
+  {/*Total */}
+  <div className="flex justify-end items-center px-0">
+  <div className="flex items-center gap-2">
+    <p className="text-white font-bold text-lg">Total:</p>
+    <p className="text-white font-semibold text-lg">
+      {Number(invoice.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+    </p>
+  </div>
+</div>
 
-              {/* RIGHT */}
-              <div className="space-y-3 mt-3 sm:mt-0">
-                <div>
-                  <p className="text-[10px] sm:text-xs text-gray-400">
-                    Network
-                  </p>
-                  <p className="bg-[#2A2A2A] w-max px-4 py-1 rounded-full text-xs sm:text-sm mt-1">
-                    TRON
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10px] sm:text-xs text-gray-400">
-                    Wallet Address
-                  </p>
-                  <div className="bg-[#2A2A2A] rounded-full px-4 py-1.5 text-xs sm:text-sm break-all mt-1">
-                    {invoice.batchTransactionId}{" "}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+  {/* Powered by IDRX */}
+  <div className="flex justify-start px-0">
+    <div className="bg-[#2A2A2A] text-white text-[11px] px-4 py-1 rounded-full font-semibold">
+      Powered by <span className="text-white font-bold">IDRX</span>
+    </div>
+  </div>
+</div>
+</div>
       </div>
     </div>
   );
