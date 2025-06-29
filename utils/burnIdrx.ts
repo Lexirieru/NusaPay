@@ -775,13 +775,13 @@ const idrxAbi = [
 ];
 
 import sha256 from "crypto-js/sha256";
-const { ethers } = require("ethers");
+import { ethers } from "ethers";
 import dotenv from "dotenv";
 dotenv.config();
 
 const IDRX_CONTRACT_ADDRESS = "0x18Bc5bcC660cf2B9cE3cd51a404aFe1a0cBD3C22";
 
-const provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL!); // rpcnya chain base mainnet 
+const provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL_BASE_MAINNET!); // rpcnya chain base mainnet 
 const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
 
 const idrxContract = new ethers.Contract(IDRX_CONTRACT_ADDRESS, idrxAbi, provider);
@@ -799,13 +799,13 @@ export async function checkIDRXBalance(){
   console.log("Signer Address:", signerAddress);
 
   const idrxBalance = await idrxContract.balanceOf(signerAddress);
-  console.log("IDRX Balance:", ethers.utils.formatUnits(idrxBalance, 5));
+  console.log("IDRX Balance:", ethers.utils.formatUnits(idrxBalance, 2));
 
   const decimals = await idrxContract.decimals();
   console.log("IDRX decimals:", decimals);
 }
 
-checkIDRXBalance();
+// checkIDRXBalance();
 
 export async function checkGasFeeEstimation(amount: string, bankAccount : string, bankAccountNumber: string){
   const bank = `${bankAccount}_${bankAccountNumber}`;
@@ -814,7 +814,6 @@ export async function checkGasFeeEstimation(amount: string, bankAccount : string
   const parsedAmount = ethers.utils.parseUnits(amount, 2); // ✅ 2 decimals
 
   const estimatedGas = await idrxContractSigner.estimateGas.burnWithAccountNumber(parsedAmount, hashBankAccountNumber);
-  
   console.log(estimatedGas)
 }
 
@@ -824,9 +823,9 @@ export async function burnIdrx(amount: string, bankAccount : string, bankAccount
   const hashBankAccountNumber = await sha256(bank).toString();
 
   // Jika IDRX decimals = 2, maka 21000 IDRX = 2100000
-  const parsedAmount = ethers.utils.parseUnits(amount, 2); // ✅ 2 decimals
+  const amountInWei = ethers.utils.parseUnits(amount, 2); // ✅ 2 decimals
 
-  const tx = await idrxContractSigner.burnWithAccountNumber(parsedAmount, hashBankAccountNumber);
+  const tx = await idrxContractSigner.burnWithAccountNumber(amountInWei, hashBankAccountNumber);
   
   await tx.wait();
   const txHash = tx.hash;

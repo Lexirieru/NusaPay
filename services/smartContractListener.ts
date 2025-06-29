@@ -4,13 +4,29 @@ import dotenv from "dotenv";
 import {
   generateSignatureForSwap,
   generateSignatureForRedeem,
-} from "./generate_signature";
-import { burnIdrx, checkGasFeeEstimation, checkIDRXBalance } from "./burnIdrx";
+} from "../utils/generate_signature";
+import { burnIdrx, checkGasFeeEstimation, checkIDRXBalance } from "../utils/burnIdrx";
 import axios from "axios";
 
 import BigNumber from "bignumber.js";
 
 dotenv.config();
+
+type RedeemTxMeta = {
+  txHash: string;
+  signature: string;
+  timestamp: string;
+};
+
+let lastRedeemTxMeta: RedeemTxMeta | null = null;
+
+export function setRedeemTxMeta(meta: RedeemTxMeta) {
+  lastRedeemTxMeta = meta;
+}
+
+export function getRedeemTxMeta(): RedeemTxMeta | null {
+  return lastRedeemTxMeta;
+}
 
 const main = async () => {
   if (
@@ -62,8 +78,6 @@ const main = async () => {
         bankAccountName,
         walletAddress,
       });
-
-      // await checkGasFeeEstimation(amountFiat,bankName,bankAccount);
     
       // listen to payrollApproved, generate signature (swap ke idrx), hit api swap rate usdc -> idrx, burn idrx, generate signature (redeem), post redeem,
 
@@ -126,7 +140,12 @@ const main = async () => {
             },
           }
         );
-
+        setRedeemTxMeta({
+          txHash,
+          signature: r_signature,
+          timestamp: r_timestamp,
+        })
+        
         console.log("[API Response]", response.data);
       } catch (err) {
         console.error("[Failed to call redeem-request]", err);
