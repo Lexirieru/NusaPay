@@ -4,6 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { RxHamburgerMenu, RxCross2 } from "react-icons/rx";
+import { getMe } from "@/utils/auth";
+
+interface UserData {
+  _id: string;
+  email: string;
+  profilePicture?: string;
+}
 
 const navItems = [
   {
@@ -28,7 +35,11 @@ const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lastScrollY = useRef(0);
 
+  const [user, setUser] = useState<UserData | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+
   useEffect(() => {
+    console.log("showDropdown:", showDropdown);
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       if (currentScrollY > lastScrollY.current && currentScrollY > 74) {
@@ -41,30 +52,56 @@ const Navbar: React.FC = () => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, [showDropdown]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const me = await getMe();
+      if (me) setUser(me);
+    };
+    fetchUser();
   }, []);
 
   return (
-    <>
+    <div className="relative z-50 group">
+      <div
+        className={`fixed top-0 z-50 w-full h-[74px] px-6 sm:px-8 flex items-center justify-between
+        transition-transform duration-300 ease-in-out
+        ${
+          showNavbar ? "translate-y-0" : "-translate-y-full"
+        } overflow-hidden group`}
+      >
+        <div
+          className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2
+            w-[120px] h-[120px] bg-cyan-400/40 rounded-full blur-2xl opacity-80
+            scale-100 group-hover:scale-135 transition-transform duration-500 pointer-events-none origin-left"
+        />
+        <div
+          className="absolute hidden lg:flex top-1/2 left-1/2 -translate-x-1/2 translate-y-1/3
+                w-[300px] h-[100px] bg-cyan-400/40 rounded-full blur-2xl opacity-50
+                scale-100 group-hover:-translate-y-8 transition-transform duration-500 pointer-events-none origin-center"
+        />
+      </div>
       <nav
         className={`fixed top-0 z-50 w-full h-[74px] px-6 sm:px-8 flex items-center justify-between
         backdrop-blur-xl backdrop-saturate-200 bg-white/5 shadow-md transition-transform duration-300 ease-in-out
-        ${showNavbar ? "translate-y-0" : "-translate-y-full"} overflow-hidden`}
+        ${showNavbar ? "translate-y-0" : "-translate-y-full"}`}
       >
         {/* Logo */}
-        <div className="w-45">
+        <div className="w-72">
           <Link href="/" className="relative z-10 group">
             <Image src="/logonusa.png" alt="Logo" width={53} height={61} />
-            <div
-              className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2
-            w-[120px] h-[120px] bg-cyan-400/40 rounded-full blur-2xl opacity-80
-            scale-100 group-hover:scale-135 transition-transform duration-500 pointer-events-none origin-left"
-            />
           </Link>
         </div>
         {/* Desktop Nav Items */}
         <ul className="hidden lg:flex items-center space-x-12 text-white font-semibold z-10">
           {navItems.map(({ label, href, external }) => (
-            <li key={label} className="relative group">
+            <li
+              key={label}
+              className="relative after:absolute after:bottom-[-2px] after:left-1/2 after:-translate-x-1/2
+             after:w-0 after:h-[2px] after:bg-cyan-400 after:rounded-full after:transition-all after:duration-300
+             hover:after:w-full"
+            >
               <Link
                 href={href}
                 target={external ? "_blank" : "_self"}
@@ -73,33 +110,150 @@ const Navbar: React.FC = () => {
               >
                 {label}
               </Link>
-              <div
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-1/3
-                w-[100px] h-[100px] bg-cyan-400/40 rounded-full blur-2xl opacity-80
-                scale-100 group-hover:-translate-y-8 transition-transform duration-500 pointer-events-none origin-center"
-              />
             </li>
           ))}
         </ul>
 
         {/* Glow aura connect button (desktop only) */}
-        <div className="hidden lg:block relative group z-10">
-          <div
-            className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2
-            w-[140px] h-[140px] bg-cyan-400/25 rounded-full blur-2xl opacity-80
-            scale-150 group-hover:scale-[1.7] transition-transform duration-500 pointer-events-none origin-right"
-          />
-          <button
-            className="relative z-10 bg-gradient-to-r from-[#1F1F1F] to-[#00B8FF] 
-            text-white font-semibold px-10 py-2 rounded-full shadow hover:scale-105 border-y-1
-            transition duration-300 hover:cursor-pointer"
-            onClick={() => {
-              window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google`;
-            }}
-          >
-            <span className="relative z-20">Get Started</span>
-          </button>
-        </div>
+        {user ? (
+          <div className="hidden lg:block relative group z-10">
+            <button
+              className="flex items-center gap-2 bg-gradient-to-r from-[#0E0E0E] to-[#237181] px-4 py-0 rounded-2xl border-y-1 hover:bg-[#2A2A2A] transition"
+              onClick={() => setShowDropdown(!showDropdown)}
+            >
+              <Image
+                src={user.profilePicture || "/profile-placeholder.png"}
+                alt="Profile"
+                width={40}
+                height={40}
+                className="rounded-full border-y-1 border-white/20"
+              />
+              <div className="px-4 py-2 text-sm max-w-[200px]">
+                <p className="font-bold truncate">{user.email}</p>
+                <p className="text-xs font-semibold text-left text-gray-400">
+                  Not Connected
+                </p>
+              </div>
+            </button>
+
+            {/* DROPDOWN */}
+            {showDropdown && (
+              <div className="absolute top-[120%] right-0 bg-[#1A1A1A] rounded-xl shadow-lg w-72 z-50 border border-white/10 p-4">
+                {/* Profil Section */}
+                <div className="flex items-center gap-3 mb-4">
+                  <Image
+                    src={user.profilePicture || "/profile-placeholder.png"}
+                    alt="Profile"
+                    width={50}
+                    height={50}
+                    className="rounded-full border border-white/10"
+                  />
+                  <div className="text-white text-sm max-w-[192px]">
+                    <p className="font-bold truncate">{user.email}</p>
+                    <p className="text-xs font-semibold text-gray-400">
+                      Not Yet Connected
+                    </p>
+                  </div>
+                </div>
+
+                {/* Warning & Connect Wallet */}
+                <div className="text-center bg-[#2a2a2a] rounded-lg py-4 mb-4 border border-red-500/20">
+                  <Image
+                    src="/warning.png"
+                    alt="Warning Icon"
+                    width={48}
+                    height={48}
+                    className="mx-auto mb-2"
+                  />
+                  <p className="text-sm font-bold text-red-500 mb-1">
+                    Connect Your Wallet
+                  </p>
+                  <p className="text-xs text-white mb-3">
+                    Connect wallet to access all the details and features.
+                  </p>
+                  {/* Connect Wallet Button */}
+                  <button
+                    className="px-6 py-1.5 rounded-full border-y-1 bg-white/10 text-sm text-white font-bold hover:bg-white/20 hover:scale-105 transition-transform duration-300 ease-in-out"
+                    onClick={() => {
+                      // connect wallet trigger
+                      console.log("Connect Wallet clicked");
+                    }}
+                  >
+                    Connect Wallet
+                  </button>
+                </div>
+
+                {/* Menu Items */}
+                <div className="flex flex-col space-y-1 text-sm">
+                  <button
+                    className="flex items-center justify-between px-4 py-2 text-cyan-300 border-b-1 border-cyan-300 hover:bg-[#2F2F2F]"
+                    onClick={() => (window.location.href = "/profile")}
+                  >
+                    <span className="flex items-center gap-2">
+                      <i className="ri-user-line" />
+                      My Profile
+                    </span>
+                    <span>›</span>
+                  </button>
+                  <button
+                    className="flex items-center justify-between px-4 py-2 text-cyan-300 border-b-1 border-cyan-300 hover:bg-[#2F2F2F]"
+                    onClick={() => (window.location.href = "/wallet")}
+                  >
+                    <span className="flex items-center gap-2">
+                      <i className="ri-wallet-line" />
+                      Wallet Account
+                    </span>
+                    <span>›</span>
+                  </button>
+                  <button
+                    className="flex items-center justify-between px-4 py-2 text-cyan-300 border-b-1 border-cyan-300 hover:bg-[#2F2F2F]"
+                    onClick={() => (window.location.href = "/transactions")}
+                  >
+                    <span className="flex items-center gap-2">
+                      <i className="ri-time-line" />
+                      History Transactions
+                    </span>
+                    <span>›</span>
+                  </button>
+                </div>
+
+                {/* Sign Out */}
+                <button
+                  className="flex items-center justify-between mt-4 px-4 py-2 text-red-400 hover:bg-[#2F2F2F] rounded-md text-sm w-full"
+                  onClick={async () => {
+                    await fetch(
+                      `${process.env.NEXT_PUBLIC_API_BASE_URL}/logout`,
+                      {
+                        method: "POST",
+                        credentials: "include",
+                      }
+                    );
+                    window.location.reload();
+                  }}
+                >
+                  <span className="flex items-center gap-2">
+                    <i className="ri-logout-box-line" />
+                    Sign Out
+                  </span>
+                  <span>›</span>
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="min-w-72 flex justify-end">
+            <button
+              className="relative z-10 bg-gradient-to-r from-[#1F1F1F] to-[#00B8FF] 
+    text-white font-semibold px-10 py-2 rounded-full shadow hover:scale-105 border-y-1
+    transition duration-300 hover:cursor-pointer"
+              onClick={() => {
+                window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google`;
+              }}
+            >
+              <span className="relative z-20">Get Started</span>
+            </button>
+          </div>
+        )}
 
         {/* Mobile Hamburger */}
         <div className="lg:hidden z-20">
@@ -130,15 +284,26 @@ const Navbar: React.FC = () => {
           ))}
 
           {/* Connect Button in Mobile */}
-          <button
-            className="bg-gradient-to-r from-[#1F1F1F] to-[#00B8FF] text-white font-semibold px-6 py-3 rounded-full shadow border-y-1"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Get Started
-          </button>
+          {user ? (
+            <button
+              className="text-sm text-white px-4 py-2 rounded-full bg-[#1A1A1A] hover:bg-[#2A2A2A] border border-white/20"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {user.email}
+            </button>
+          ) : (
+            <button
+              className="bg-gradient-to-r from-[#1F1F1F] to-[#00B8FF] text-white font-semibold px-6 py-3 rounded-full shadow border-y-1"
+              onClick={() => {
+                window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google`;
+              }}
+            >
+              Get Started
+            </button>
+          )}
         </div>
       )}
-    </>
+    </div>
   );
 };
 
