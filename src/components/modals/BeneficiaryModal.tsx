@@ -17,10 +17,10 @@ import { useUser } from "@/lib/UserContext";
  */
 
 interface BeneficiaryModalProps {
-    employee?: Recipient | null;
-    onClose: () => void;
-    onSave: (employee: Employee | Omit<Recipient, "_id">) => void;
-  }
+  employee?: Recipient | null;
+  onClose: () => void;
+  onSave: (employee: Employee | Omit<Recipient, "_id">) => void;
+}
 
 export default function BeneficiaryModal({
   employee = null,
@@ -38,8 +38,8 @@ export default function BeneficiaryModal({
     bankAccount: "",
     amountTransfer: "",
   });
-  const {user} = useUser();
-  const {currentTemplateId} = useTemplate();
+  const { user } = useUser();
+  const { currentTemplateId } = useTemplate();
   const modalTitle = isEditMode ? `${formData.name}` : "Add Beneficiary";
 
   useEffect(() => {
@@ -84,30 +84,30 @@ export default function BeneficiaryModal({
     console.log(currentTemplateId);
 
     const commonPayload = {
-        companyId: user?._id!, // TODO: Ambil dari cookie/session nanti
-        companyName: process.env.NEXT_PUBLIC_COMPANY_NAME!,             // TODO: Ambil dari auth
-        name: formData.name,
-        bankCode: "014",                    // TODO: Bisa pakai enum/mapping dari nama bank
-        bankAccountName: formData.bankAccountName,
-        bankAccount: formData.bankAccount,
-        walletAddress: "0xe8720c942F114Eac371746C6eCfAcf5F717164CB", // TODO
-        networkChainId: 4202,
-        amountTransfer: Number.parseFloat(formData.amountTransfer),
-        currency: formData.currency || "USDC",
-        localCurrency: formData.localCurrency || "IDR",
-        groupId : currentTemplateId!// harusnya diganti dengan bisa menyesuaikan skrg lagi ada di template apa
+      companyId: user?._id!, // TODO: Ambil dari cookie/session nanti
+      companyName: process.env.NEXT_PUBLIC_COMPANY_NAME!, // TODO: Ambil dari auth
+      name: formData.name,
+      bankCode: "014", // TODO: Bisa pakai enum/mapping dari nama bank
+      bankAccountName: formData.bankAccountName,
+      bankAccount: formData.bankAccount,
+      walletAddress: "0xe8720c942F114Eac371746C6eCfAcf5F717164CB", // TODO
+      networkChainId: 4202,
+      amountTransfer: Number.parseFloat(formData.amountTransfer),
+      currency: formData.currency || "USDC",
+      localCurrency: formData.localCurrency || "IDR",
+      groupId: currentTemplateId!, // harusnya diganti dengan bisa menyesuaikan skrg lagi ada di template apa
+    };
+
+    if (isEditMode && employee) {
+      const updatedEmployee = {
+        ...commonPayload,
+        id: employee._id,
       };
-    
-      if (isEditMode && employee) {
-        const updatedEmployee = {
-          ...commonPayload,
-          id: employee._id,
-        };
-        onSave(updatedEmployee); 
-       } else {
-        onSave(commonPayload); 
-        await addEmployeeData(commonPayload); 
-      }
+      onSave(updatedEmployee);
+    } else {
+      onSave(commonPayload);
+      await addEmployeeData(commonPayload);
+    }
   };
 
   return (

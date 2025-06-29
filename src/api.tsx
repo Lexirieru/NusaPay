@@ -2,9 +2,17 @@ import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { LoadPayloadForGroupId, LoadPayloadWithCompanyId, Recipient } from "./types/recipient";
+import {
+  LoadPayloadForGroupId,
+  LoadPayloadWithCompanyId,
+  Recipient,
+} from "./types/recipient";
 import { Template } from "./lib/template";
-import { Invoice, InvoiceCreationPayload, InvoiceSummary } from "./types/invoice";
+import {
+  Invoice,
+  InvoiceCreationPayload,
+  InvoiceSummary,
+} from "./types/invoice";
 // =====================
 // TIPE DATA
 // =====================
@@ -30,9 +38,9 @@ interface AddEmployeePayload {
   walletAddress: string;
   networkChainId: number;
   amountTransfer: number;
-  currency : string,
-  localCurrency : string,
-  groupId? : string
+  currency: string;
+  localCurrency: string;
+  groupId: string;
 }
 
 interface editEmployeePayload {
@@ -75,9 +83,12 @@ api.interceptors.response.use(
 // HOOK CEK AUTH
 // =====================
 export const fetchCurrentUser = async () => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/me`, {
-    withCredentials: true, // ⬅️ penting agar cookie terkirim!
-  });
+  const response = await axios.get(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/me`,
+    {
+      withCredentials: true, // ⬅️ penting agar cookie terkirim!
+    }
+  );
   return response.data; // { id, email, googleId }
 };
 
@@ -93,11 +104,11 @@ export const fetchCurrentUser = async () => {
 //   return response.data;
 // };
 
-export const loadInvoiceData = async (
-  payload: { txId: string }
-): Promise<any> => {
+export const loadInvoiceData = async (payload: {
+  txId: string;
+}): Promise<any> => {
   const response = await api.post("/loadInvoiceData", payload);
-  console.log(payload)
+  console.log(payload);
   return response.data;
 };
 
@@ -105,15 +116,13 @@ export const addEmployeeData = async (
   payload: AddEmployeePayload
 ): Promise<void> => {
   const response = await api.post("/addEmployeeDataToGroup", payload);
-  console.log(payload)
+  console.log(payload);
   return response.data;
 };
 
-export const addGroupName = async (
-  payload: Template 
-): Promise<void> => {
+export const addGroupName = async (payload: Template): Promise<void> => {
   const response = await api.post("/addGroupName", payload);
-  console.log(payload)
+  console.log(payload);
   return response.data;
 };
 
@@ -126,11 +135,14 @@ export const loadGroupName = async (
   payload: LoadPayloadWithCompanyId
 ): Promise<Template[]> => {
   try {
-    const response = await api.post<LoadGroupNameResponse>('/loadGroupName', payload);
-    console.log(response.data.data)
+    const response = await api.post<LoadGroupNameResponse>(
+      "/loadGroupName",
+      payload
+    );
+    console.log(response.data.data);
     return response.data.data;
   } catch (error: any) {
-    console.error('Failed to load employee data:', error?.message || error);
+    console.error("Failed to load employee data:", error?.message || error);
     throw error;
   }
 };
@@ -144,11 +156,14 @@ export const loadEmployeeData = async (
   payload: LoadPayloadForGroupId
 ): Promise<Recipient[]> => {
   try {
-    const response = await api.post<LoadEmployeeResponse>('/loadEmployeeDataFromGroup', payload);
-    console.log(response)
+    const response = await api.post<LoadEmployeeResponse>(
+      "/loadEmployeeDataFromGroup",
+      payload
+    );
+    console.log(response);
     return response.data.data;
   } catch (error: any) {
-    console.error('Failed to load employee data:', error?.message || error);
+    console.error("Failed to load employee data:", error?.message || error);
     throw error;
   }
 };
