@@ -30,13 +30,16 @@ export async function recordTransactionToDB({
   console.log(`✅ Transaction recorded to DB: ${txHash}`);
 }
 
+export async function addInvoiceData(req: Request, res: Response) {}
+
+export async function loadInvoiceData(req: Request, res: Response) {}
 // buat controller untuk ngasih akses ke FE biar bisa akses status berdasarkan txIdnya
 export async function loadTransactionStatusData(req: Request, res: Response) {
   const { txHash } = req.body;
 
   try {
     // Ambil 5 data terbaru berdasarkan timestamp (atau bisa juga pakai _id)
-    const latestPayrolls = await TransactionRecordModel.findOne({ txHash })
+    const latestPayrolls = await TransactionRecordModel.findOne({ txHash });
 
     try {
       const response = await axios.get(

@@ -3,6 +3,11 @@ import mongoose, { Schema } from "mongoose";
 // model untuk bentuk data informasi terkait company
 const CompanyDataSchema = new Schema(
   {
+    companyId: {
+      type: String,
+      required: true,
+      unique: true, // pastikan companyId unik
+    },
     email: {
       type: String,
       required: true,

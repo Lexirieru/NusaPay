@@ -8,6 +8,7 @@ import {
 import { generateToken } from "../config/generateToken";
 import { verifyToken } from "../middleware/checkTokenAuthentication";
 import { checkSession } from "../config/checkSession";
+import mongoose from "mongoose";
 
 const router: Router = express.Router();
 

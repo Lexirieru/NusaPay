@@ -6,6 +6,8 @@ import {
   addPayrollDetailsData,
   loadPayrollData,
   loadPayrollDetailsData,
+  addInvoiceData,
+  loadInvoiceData,
 } from "../controllers/transactionController";
 
 import {
@@ -19,7 +21,7 @@ import {
   addOrUpdateCompanyData,
   loadGroupName,
   deleteEmployeeDataFromGroup,
-  checkWalletAddressStatus
+  checkWalletAddressStatus,
 } from "../controllers/companyController";
 
 const router = express.Router();
@@ -36,6 +38,17 @@ type RouteDefinition = {
 
 const routes: RouteDefinition[] = [
   // Payroll data
+  {
+    method: "post",
+    path: "/addInvoiceData",
+    action: addInvoiceData,
+  },
+  {
+    method: "get",
+    path: "/loadInvoiceData",
+    action: loadInvoiceData,
+  },
+
   {
     method: "post",
     path: "/addPayrollData",
@@ -104,7 +117,7 @@ const routes: RouteDefinition[] = [
     path: "/loadGroupOfEmployee",
     action: loadGroupOfEmployee,
   },
-  
+
   {
     method: "get",
     path: "/checkWalletAddressStatus",
