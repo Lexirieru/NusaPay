@@ -72,7 +72,8 @@ export async function sendToken(
   amount: string,
   recipient: string,
   recipientAddress: string,
-  PRIVATE_KEY: string
+  PRIVATE_KEY: string,
+  API_KEY: string
 ) {
   const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
   // udah connect ke smart contract USDC di base dan connect ke walletku
@@ -99,6 +100,7 @@ export async function sendToken(
     txHash,
     amount: parseFloat(amount), // dari "1.3" → 1.3 (number)
     recipient,
+    API_KEY,
   });
 
   console.log(`USDC sent to ${recipient}: txHash = ${txHash}`);
@@ -125,7 +127,8 @@ export async function doMinting(
     amount,
     recipient,
     recipientAddress,
-    PRIVATE_KEY
+    PRIVATE_KEY,
+    IDRX_API_KEY
   );
 }
 

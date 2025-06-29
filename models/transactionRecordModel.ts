@@ -31,6 +31,10 @@ const TransactionRecordSchema = new Schema(
       type: String,
       required: true,
     },
+    API_KEY: {
+      type: String,
+      required: true,
+    },
     status: {
       type: String,
       default: "PENDING",

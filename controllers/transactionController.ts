@@ -15,6 +15,7 @@ export async function addInvoiceData({
   txHash,
   amount,
   recipient,
+  API_KEY,
 }: {
   txId: string;
   userId: string;
@@ -23,6 +24,7 @@ export async function addInvoiceData({
   recipient: string;
   txHash: string;
   amount: number;
+  API_KEY: string;
 }) {
   const newTx = new TransactionRecordModel({
     txId,
@@ -33,33 +35,51 @@ export async function addInvoiceData({
     txHash,
     amount,
     status: "PENDING",
+    API_KEY,
   });
 
   await newTx.save();
   console.log(`✅ Transaction recorded to DB: ${txHash}`);
 }
 
+async function waitUntilCompleted(
+  txHash: string,
+  API_KEY: string,
+  maxRetries = 10,
+  delayMs = 40000
+): Promise<string> {
+  let attempt = 0;
+  while (attempt < maxRetries) {
+    const status = await loadTransactionStatusData(txHash, API_KEY);
+    if (status === "SUCCESS") return status;
+
+    attempt++;
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+  return "PENDING"; // or return last known status if needed
+}
+
 export async function loadInvoiceData(req: Request, res: Response) {
   const { txId } = req.body;
 
   try {
-    // Ambil 5 data terbaru berdasarkan timestamp (atau bisa juga pakai _id)
     const invoice = await TransactionRecordModel.findOne({ txId });
+
     if (!invoice) {
-      res.status(404).json({
-        message: "Invoice not found",
-      });
+      res.status(404).json({ message: "Invoice not found" });
     } else {
-      const latestStatus = await loadTransactionStatusData(invoice.txHash);
-      invoice.status = latestStatus || "PENDING";
-      // baru data yang ada di invoice doang yang dikirim
+      const finalStatus = await waitUntilCompleted(
+        invoice.txHash,
+        invoice.API_KEY
+      );
+      invoice.status = finalStatus;
       await invoice.save();
+
       const employeeData = await EmployeeModel.findById(invoice.userId);
       if (!employeeData) {
-        res.status(404).json({
-          message: "Cant find data for this person",
-        }); // update recipient with employee name
+        res.status(404).json({ message: "Can't find data for this person" });
       } else {
+        // Convert Mongoose document ke plain object dan spread ke response
         const plainInvoice = invoice.toObject();
         const dataToSend = {
           ...plainInvoice,
@@ -68,10 +88,9 @@ export async function loadInvoiceData(req: Request, res: Response) {
           bankAccountName: employeeData.bankAccountName,
           bankAccount: employeeData.bankAccount,
         };
-        console.log(dataToSend);
-        //
+
         res.status(200).json({
-          message: "Successfully fetched latest invoices",
+          message: "Successfully fetched invoice with updated status",
           data: dataToSend,
         });
       }
@@ -84,10 +103,19 @@ export async function loadInvoiceData(req: Request, res: Response) {
   }
 }
 // buat controller untuk ngasih akses ke FE biar bisa akses status berdasarkan txIdnya
-export async function loadTransactionStatusData(txHash: string) {
+export async function loadTransactionStatusData(
+  txHash: string,
+  API_KEY: string
+) {
   try {
     const response = await axios.get(
-      `https://idrx.co/api/transaction/user-transaction-history?transactionType=DEPOSIT_REDEEM&txHash=${txHash}&page=1&take=1`
+      `https://idrx.co/api/transaction/user-transaction-history?transactionType=DEPOSIT_REDEEM&txHash=${txHash}&page=1&take=1`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "idrx-api-key": API_KEY,
+        },
+      }
     );
     if (!response.data) {
       console.log(response.data);
