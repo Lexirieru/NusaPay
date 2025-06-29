@@ -17,22 +17,8 @@ export default function InvoicePage() {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentRecipientIndex, setCurrentRecipientIndex] = useState(0);
-  console.log("NGENTOD");
-  const [user, setUser] = useState<User | null>(null);
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch("/api/me", { credentials: "include" });
-        const data = await res.json();
-        setUser(data);
-      } catch (err) {
-        console.error("Failed to fetch user", err);
-      }
-    };
-
-    fetchUser();
-  }, []);
+  // const [currentRecipientIndex, setCurrentRecipientIndex] = useState(0);
+  
   useEffect(() => {
     const fetchInvoice = async () => {
       try {

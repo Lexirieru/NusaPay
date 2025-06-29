@@ -14,6 +14,7 @@ import { Description } from "@radix-ui/react-alert-dialog"
 interface ProcessLoadingProps{
     recepientCount: number
     onComplete: () => void
+    isStage1Complete: boolean
 }
 
 interface ProcessStage{
@@ -26,13 +27,13 @@ interface ProcessStage{
 const PROCESS_STAGES: ProcessStage[] =[
     {
         id: "tahap1",
-        title: "Loading proses 1",
-        duration: 2000,
+        title: "Sending Data to Smart Contract ",
+        duration: 0,
     },
     {
         id: "tahap2",
         title: "Loading proses 2",
-        duration: 3000,
+        duration: 0,
     },
     {
         id: "tahap3",
@@ -46,31 +47,64 @@ const PROCESS_STAGES: ProcessStage[] =[
     },
 ]
 
-export default function ProcessingModal({recepientCount,onComplete}:ProcessLoadingProps){
+export default function ProcessingModal({recepientCount,onComplete, isStage1Complete}:ProcessLoadingProps){
     const [currentStageIndex, setCurrentStageIndex] = useState(0)
     const [completedStages, setCompletedStages] = useState<Set<string>>(new Set())
+
     const countryCount = Math.min(Math.ceil(recepientCount/2))
-    useEffect(() => {
+    // useEffect(() => {
+    //     if(currentStageIndex >= PROCESS_STAGES.length){
+    //         const timer = setTimeout(() =>{
+    //             onComplete()
+    //         }, 1000)
+    //         return () => clearTimeout(timer)
+    //     }
+
+    //     const currentStage = PROCESS_STAGES[currentStageIndex]
+    //     const timer = setTimeout(() =>{
+    //         //Nandain stage saat ini kelar
+    //         setCompletedStages((prev) => new Set([...prev, currentStage.id]))
+
+    //         //habis kelar pindah ke next stage
+    //         setTimeout(() => {
+    //             setCurrentStageIndex((prev) => prev + 1)
+    //         }, 500)
+    //     }, currentStage.duration)
+
+    //     return() => clearTimeout(timer)
+    // }, [currentStageIndex, onComplete])
+
+    useEffect(() =>{
+        const proceedToNextStage = () =>{
+            const currentStage = PROCESS_STAGES[currentStageIndex]
+            setCompletedStages((prev) => new Set([...prev, currentStage.id]))
+
+            setTimeout(() => {
+                setCurrentStageIndex((prev => prev + 1))
+            }, 500)
+        }
         if(currentStageIndex >= PROCESS_STAGES.length){
-            const timer = setTimeout(() =>{
+            const doneTimer = setTimeout(() =>{
                 onComplete()
             }, 1000)
-            return () => clearTimeout(timer)
+            return () => clearTimeout(doneTimer)
         }
 
         const currentStage = PROCESS_STAGES[currentStageIndex]
-        const timer = setTimeout(() =>{
-            //Nandain stage saat ini kelar
-            setCompletedStages((prev) => new Set([...prev, currentStage.id]))
-
-            //habis kelar pindah ke next stage
-            setTimeout(() => {
-                setCurrentStageIndex((prev) => prev + 1)
-            }, 500)
-        }, currentStage.duration)
-
-        return() => clearTimeout(timer)
-    }, [currentStageIndex, onComplete])
+        if(currentStage.id === "tahap1"){
+            if(isStage1Complete){
+                const timer = setTimeout(() =>{
+                    proceedToNextStage()
+                }, 500)
+                return () => clearTimeout(timer)   
+            }
+        }else{
+            const timer = setTimeout(() =>{
+                proceedToNextStage()
+            }, currentStage.duration)
+            return () => clearTimeout(timer)
+        }
+    }, [currentStageIndex, isStage1Complete, onComplete])
 
     return(
         <ModalOverlay onClose={() => {}}>

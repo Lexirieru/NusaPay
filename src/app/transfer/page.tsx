@@ -39,6 +39,7 @@ export default function Dashboard() {
   const [showProcessingModal, setShowProcessingModal] = useState(false)
   
   const [newlyCreatedInvoiceId, setNewlyCreatedInvoiceId] = useState<string|null>(null)
+  const [isStage1Complete, setIsStage1Complete] = useState(false)
 
   // Fetch all templates first
   useEffect(() => {
@@ -195,6 +196,7 @@ export default function Dashboard() {
 
     setShowTransferAlert(false)
     setShowProcessingModal(true)
+    setIsStage1Complete(false)
 
     try{
       const creationPayload = {
@@ -206,9 +208,11 @@ export default function Dashboard() {
           amount: r.amountTransfer,
         }))
       }
-      
+      //loading 1
       // const newInvoice = await addInvoiceData(creationPayload);
       // setNewlyCreatedInvoiceId(newInvoice._id)
+
+      setIsStage1Complete(true)
     }catch (err){
       console.error("Failed to create invoice: ", err)
       setShowProcessingModal(false)
@@ -303,6 +307,7 @@ export default function Dashboard() {
         <ProcessingModal
           recepientCount={currentTemplate.recipients.length}
           onComplete={handleProcessingComplete}
+          isStage1Complete={isStage1Complete}
         />
       )}
     </div>
