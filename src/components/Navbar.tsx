@@ -220,7 +220,7 @@ const buttonRef = useRef<HTMLButtonElement>(null);
                     relative after:absolute after:bottom-[-2px] after:left-1/2 after:-translate-x-1/2
              after:w-0 after:h-[2px] after:bg-cyan-400/55 after:rounded-full after:transition-all after:duration-300
              hover:after:w-[84%]"
-                    onClick={() => (window.location.href = "/profile")}
+                    onClick={() => (window.location.href = "/soon")}
                   >
                     <span className="flex items-center gap-2">
                       <CgProfile className="scale-150 w-5" />
@@ -233,7 +233,7 @@ const buttonRef = useRef<HTMLButtonElement>(null);
                     relative after:absolute after:bottom-[-2px] after:left-1/2 after:-translate-x-1/2
              after:w-0 after:h-[2px] after:bg-cyan-400/55 after:rounded-full after:transition-all after:duration-300
              hover:after:w-[84%]"
-                    onClick={() => (window.location.href = "/wallet")}
+                    onClick={() => (window.location.href = "/soon")}
                   >
                     <span className="flex items-center gap-2">
                       <IoWalletOutline className="scale-150 w-5" />
@@ -246,7 +246,7 @@ const buttonRef = useRef<HTMLButtonElement>(null);
                     relative after:absolute after:bottom-[-2px] after:left-1/2 after:-translate-x-1/2
              after:w-0 after:h-[2px] after:bg-cyan-400/55 after:rounded-full after:transition-all after:duration-300
              hover:after:w-[84%]"
-                    onClick={() => (window.location.href = "/transactions")}
+                    onClick={() => (window.location.href = "/soon")}
                   >
                     <span className="flex items-center gap-2">
                       <FaHistory className="scale-120 w-5" />
