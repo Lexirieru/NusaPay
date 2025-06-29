@@ -16,7 +16,6 @@ interface UserData {
   profilePicture?: string;
 }
 
-
 const navItems = [
   {
     label: "Twitter",
@@ -37,13 +36,14 @@ const navItems = [
 
 const Navbar: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
-const buttonRef = useRef<HTMLButtonElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const [showNavbar, setShowNavbar] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lastScrollY = useRef(0);
 
   const [user, setUser] = useState<UserData | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showMobileDropdown, setShowMobileDropdown] = useState(false);
 
   useEffect(() => {
     console.log("showDropdown:", showDropdown);
@@ -62,22 +62,22 @@ const buttonRef = useRef<HTMLButtonElement>(null);
   }, [showDropdown]);
 
   useEffect(() => {
-  const handleClickOutside = (event: MouseEvent) => {
-    if (
-      dropdownRef.current &&
-      !dropdownRef.current.contains(event.target as Node) &&
-      buttonRef.current &&
-      !buttonRef.current.contains(event.target as Node)
-    ) {
-      setShowDropdown(false);
-    }
-  };
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    };
 
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, []);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -143,7 +143,7 @@ const buttonRef = useRef<HTMLButtonElement>(null);
         {user ? (
           <div className="hidden lg:block relative group z-10">
             <button
-            ref={buttonRef}
+              ref={buttonRef}
               className="flex items-center cursor-pointer gap-2 bg-gradient-to-r from-[#0E0E0E] to-[#237181] px-4 py-0 rounded-2xl border-y-1 border-white/30 hover:bg-[#2A2A2A] transition"
               onClick={() => setShowDropdown((prev) => !prev)}
             >
@@ -161,125 +161,129 @@ const buttonRef = useRef<HTMLButtonElement>(null);
                 </p>
               </div>
             </button>
-            
+
             {/* DROPDOWN */}
             <div
-            ref={dropdownRef}
-  className={`absolute top-[120%] right-0 bg-[#1A1A1A] rounded-xl shadow-lg w-72 z-50 border-white/20 border-x-1 p-4
+              ref={dropdownRef}
+              className={`absolute top-[120%] right-0 bg-[#1A1A1A] rounded-xl shadow-lg w-72 z-50 border-white/20 border-x-1 p-4
     transition-all duration-300 ease-in-out
-    ${showDropdown ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-2 pointer-events-none"}`}
->
-                {/* Profil Section */}
-                <div className="flex items-center gap-3 mb-4">
-                  <Image
-                    src={user.profilePicture || "/profile-placeholder.png"}
-                    alt="Profile"
-                    width={50}
-                    height={50}
-                    className="rounded-full border border-white/10"
-                  />
-                  <div className="text-white text-sm max-w-[192px]">
-                    <p className="font-bold truncate">{user.email}</p>
-                    <p className="text-xs font-semibold text-gray-400">
-                      Not Yet Connected
-                    </p>
-                  </div>
-                </div>
-
-                {/* Warning & Connect Wallet */}
-                <div className="text-center bg-[#2a2a2a] rounded-lg py-4 mb-4 border border-red-500/20">
-                  <Image
-                    src="/warning.png"
-                    alt="Warning Icon"
-                    width={48}
-                    height={48}
-                    className="mx-auto mb-2"
-                  />
-                  <p className="text-sm font-bold text-red-500 mb-1">
-                    Connect Your Wallet
+    ${
+      showDropdown
+        ? "opacity-100 translate-y-0 pointer-events-auto"
+        : "opacity-0 -translate-y-2 pointer-events-none"
+    }`}
+            >
+              {/* Profil Section */}
+              <div className="flex items-center gap-3 mb-4">
+                <Image
+                  src={user.profilePicture || "/profile-placeholder.png"}
+                  alt="Profile"
+                  width={50}
+                  height={50}
+                  className="rounded-full border border-white/10"
+                />
+                <div className="text-white text-sm max-w-[192px]">
+                  <p className="font-bold truncate">{user.email}</p>
+                  <p className="text-xs font-semibold text-gray-400">
+                    Not Yet Connected
                   </p>
-                  <p className="text-xs text-white mb-3">
-                    Connect wallet to access all the details and features.
-                  </p>
-                  {/* Connect Wallet Button */}
-                  <button
-                    className="px-6 py-1.5 rounded-full border-y-1 bg-white/10 text-sm text-white font-bold hover:bg-white/20 hover:scale-105 transition-transform duration-300 ease-in-out"
-                    onClick={() => {
-                      // connect wallet trigger
-                      console.log("Connect Wallet clicked");
-                    }}
-                  >
-                    Connect Wallet
-                  </button>
                 </div>
+              </div>
 
-                {/* Menu Items */}
-                <div className="flex flex-col space-y-1 text-sm">
-                  <button
-                    className="flex items-center justify-between px-2 py-2 text-cyan-300
-                    relative after:absolute after:bottom-[-2px] after:left-1/2 after:-translate-x-1/2
-             after:w-0 after:h-[2px] after:bg-cyan-400/55 after:rounded-full after:transition-all after:duration-300
-             hover:after:w-[84%]"
-                    onClick={() => (window.location.href = "/profile")}
-                  >
-                    <span className="flex items-center gap-2">
-                      <CgProfile className="scale-150 w-5" />
-                      My Profile
-                    </span>
-                    <span>›</span>
-                  </button>
-                  <button
-                    className="flex items-center justify-between px-2 py-2 text-cyan-300
-                    relative after:absolute after:bottom-[-2px] after:left-1/2 after:-translate-x-1/2
-             after:w-0 after:h-[2px] after:bg-cyan-400/55 after:rounded-full after:transition-all after:duration-300
-             hover:after:w-[84%]"
-                    onClick={() => (window.location.href = "/wallet")}
-                  >
-                    <span className="flex items-center gap-2">
-                      <IoWalletOutline className="scale-150 w-5" />
-                      Wallet Account
-                    </span>
-                    <span>›</span>
-                  </button>
-                  <button
-                    className="flex items-center justify-between px-2 py-2 text-cyan-300
-                    relative after:absolute after:bottom-[-2px] after:left-1/2 after:-translate-x-1/2
-             after:w-0 after:h-[2px] after:bg-cyan-400/55 after:rounded-full after:transition-all after:duration-300
-             hover:after:w-[84%]"
-                    onClick={() => (window.location.href = "/transactions")}
-                  >
-                    <span className="flex items-center gap-2">
-                      <FaHistory className="scale-120 w-5" />
-                      History Transactions
-                    </span>
-                    <span>›</span>
-                  </button>
-                </div>
-
-                {/* Sign Out */}
+              {/* Warning & Connect Wallet */}
+              <div className="text-center bg-[#2a2a2a] rounded-lg py-4 mb-4 border border-red-500/20">
+                <Image
+                  src="/warning.png"
+                  alt="Warning Icon"
+                  width={48}
+                  height={48}
+                  className="mx-auto mb-2"
+                />
+                <p className="text-sm font-bold text-red-500 mb-1">
+                  Connect Your Wallet
+                </p>
+                <p className="text-xs text-white mb-3">
+                  Connect wallet to access all the details and features.
+                </p>
+                {/* Connect Wallet Button */}
                 <button
-                  className="flex items-center justify-between mt-4 px-2 py-2 text-red-400  text-sm w-full
-                  relative after:absolute after:bottom-[-1px] after:left-1/2 after:-translate-x-1/2
-             after:w-0 after:h-[2px] after:bg-red-400/55 after:rounded-full after:transition-all after:duration-300
-             hover:after:w-[84%]"
-                  onClick={async () => {
-                    await fetch(
-                      `${process.env.NEXT_PUBLIC_API_BASE_URL}/logout`,
-                      {
-                        method: "POST",
-                        credentials: "include",
-                      }
-                    );
-                    window.location.reload();
+                  className="px-6 py-1.5 rounded-full border-y-1 bg-white/10 text-sm text-white font-bold hover:bg-white/20 hover:scale-105 transition-transform duration-300 ease-in-out"
+                  onClick={() => {
+                    // connect wallet trigger
+                    console.log("Connect Wallet clicked");
                   }}
                 >
+                  Connect Wallet
+                </button>
+              </div>
+
+              {/* Menu Items */}
+              <div className="flex flex-col space-y-1 text-sm">
+                <button
+                  className="flex items-center justify-between px-2 py-2 text-cyan-300
+                    relative after:absolute after:bottom-[-2px] after:left-1/2 after:-translate-x-1/2
+             after:w-0 after:h-[2px] after:bg-cyan-400/55 after:rounded-full after:transition-all after:duration-300
+             hover:after:w-[84%]"
+                  onClick={() => (window.location.href = "/soon")}
+                >
                   <span className="flex items-center gap-2">
-                    <BiLogOutCircle className="scale-150 w-5" />
-                    Sign Out
+                    <CgProfile className="scale-150 w-5" />
+                    My Profile
+                  </span>
+                  <span>›</span>
+                </button>
+                <button
+                  className="flex items-center justify-between px-2 py-2 text-cyan-300
+                    relative after:absolute after:bottom-[-2px] after:left-1/2 after:-translate-x-1/2
+             after:w-0 after:h-[2px] after:bg-cyan-400/55 after:rounded-full after:transition-all after:duration-300
+             hover:after:w-[84%]"
+                  onClick={() => (window.location.href = "/soon")}
+                >
+                  <span className="flex items-center gap-2">
+                    <IoWalletOutline className="scale-150 w-5" />
+                    Wallet Account
+                  </span>
+                  <span>›</span>
+                </button>
+                <button
+                  className="flex items-center justify-between px-2 py-2 text-cyan-300
+                    relative after:absolute after:bottom-[-2px] after:left-1/2 after:-translate-x-1/2
+             after:w-0 after:h-[2px] after:bg-cyan-400/55 after:rounded-full after:transition-all after:duration-300
+             hover:after:w-[84%]"
+                  onClick={() => (window.location.href = "/soon")}
+                >
+                  <span className="flex items-center gap-2">
+                    <FaHistory className="scale-120 w-5" />
+                    History Transactions
                   </span>
                   <span>›</span>
                 </button>
               </div>
+
+              {/* Sign Out */}
+              <button
+                className="flex items-center justify-between mt-4 px-2 py-2 text-red-400  text-sm w-full
+                  relative after:absolute after:bottom-[-1px] after:left-1/2 after:-translate-x-1/2
+             after:w-0 after:h-[2px] after:bg-red-400/55 after:rounded-full after:transition-all after:duration-300
+             hover:after:w-[84%]"
+                onClick={async () => {
+                  await fetch(
+                    `${process.env.NEXT_PUBLIC_API_BASE_URL}/logout`,
+                    {
+                      method: "POST",
+                      credentials: "include",
+                    }
+                  );
+                  window.location.reload();
+                }}
+              >
+                <span className="flex items-center gap-2">
+                  <BiLogOutCircle className="scale-150 w-5" />
+                  Sign Out
+                </span>
+                <span>›</span>
+              </button>
+            </div>
           </div>
         ) : (
           <div className="min-w-72 flex justify-end">
@@ -326,12 +330,67 @@ const buttonRef = useRef<HTMLButtonElement>(null);
 
           {/* Connect Button in Mobile */}
           {user ? (
-            <button
-              className="text-sm text-white px-4 py-2 rounded-full bg-[#1A1A1A] hover:bg-[#2A2A2A] border border-white/20"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {user.email}
-            </button>
+            <div className="relative w-full flex flex-col items-center">
+              <button
+                className="text-sm text-white px-4 py-2 rounded-full bg-[#1A1A1A] hover:bg-[#2A2A2A] border border-white/20"
+                onClick={() => setShowMobileDropdown((prev) => !prev)}
+              >
+                {user.email}
+              </button>
+
+              {showMobileDropdown && (
+                <div className="mt-2 bg-[#1A1A1A] w-11/12 max-w-xs rounded-xl shadow-lg p-4 text-sm border border-white/10 z-50">
+                  <p className="text-gray-400 mb-2 text-xs">Not connected</p>
+                  <button
+                    className="w-full text-left px-3 py-2 hover:bg-[#2A2A2A] rounded-md"
+                    onClick={() => {
+                      window.location.href = "/transfer";
+                    }}
+                  >
+                    Connect Wallet
+                  </button>
+                  <button
+                    className="w-full text-left px-3 py-2 hover:bg-[#2A2A2A] rounded-md"
+                    onClick={() => {
+                      window.location.href = "/soon";
+                    }}
+                  >
+                    My Profile
+                  </button>
+                  <button
+                    className="w-full text-left px-3 py-2 hover:bg-[#2A2A2A] rounded-md"
+                    onClick={() => {
+                      window.location.href = "/soon";
+                    }}
+                  >
+                    Wallet Account
+                  </button>
+                  <button
+                    className="w-full text-left px-3 py-2 hover:bg-[#2A2A2A] rounded-md"
+                    onClick={() => {
+                      window.location.href = "/soon";
+                    }}
+                  >
+                    History Transaction
+                  </button>
+                  <button
+                    className="w-full text-left px-3 py-2 hover:bg-[#2A2A2A] text-red-400 rounded-md"
+                    onClick={async () => {
+                      await fetch(
+                        `${process.env.NEXT_PUBLIC_API_BASE_URL}/logout`,
+                        {
+                          method: "POST",
+                          credentials: "include",
+                        }
+                      );
+                      window.location.reload();
+                    }}
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <button
               className="bg-gradient-to-r from-[#1F1F1F] to-[#00B8FF] text-white font-semibold px-6 py-3 rounded-full shadow border-y-1"
