@@ -47,7 +47,6 @@ export function getRedeemTxMeta(): RedeemTxMeta | null {
 // testConnection();
 
 export const main = async () => {
-
   // ntar ganti karena aku gatau nama eventnya apa (berarti ganti juga ABI-nya)
   contract.on(
     "PayrollApproved",
@@ -60,22 +59,28 @@ export const main = async () => {
       amount
     ) => {
       console.log(`[EVENT RECEIVED]`);
-  
+
       console.log({
         txId,
         userId,
         IDRX_API_KEY,
         IDRX_SECRET_KEY,
         PRIVATE_KEY,
-        amount
+        amount,
       });
-      amount = ethers.utils.formatUnits(amount,6);
-      console.log(amount)
-      
-      // catatannya adalah smart contract harus mbawain idrx api key, 
-      // idrx secret key, dan private key wallet di payloadnya
-      await doMinting(txId, userId, IDRX_API_KEY, IDRX_SECRET_KEY, PRIVATE_KEY, amount.toString());
+      amount = ethers.utils.formatUnits(amount, 6);
+      console.log(amount);
 
+      // catatannya adalah smart contract harus mbawain idrx api key,
+      // idrx secret key, dan private key wallet di payloadnya
+      await doMinting(
+        txId,
+        userId,
+        IDRX_API_KEY,
+        IDRX_SECRET_KEY,
+        PRIVATE_KEY,
+        amount.toString()
+      );
     }
   );
 

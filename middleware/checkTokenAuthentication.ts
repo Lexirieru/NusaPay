@@ -17,6 +17,8 @@ export const verifyToken = async (
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       id: string;
       email: string;
+      companyName?: string;
+      profilePicture?: string;
     };
 
     // Validasi token dengan database

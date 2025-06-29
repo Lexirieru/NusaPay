@@ -11,6 +11,10 @@ const CompanyDataSchema = new Schema(
       type: String,
       required: false,
     },
+    profilePicture: {
+      type: String,
+      required: false,
+    },
     walletAddress: {
       type: String,
       required: false,
@@ -99,10 +103,9 @@ const LoginSessionTokenSchema = new Schema({
     type: String,
     required: true,
   },
-})
+});
 
 export const LoginSessionTokenModel = mongoose.model(
   "LoginSession",
   LoginSessionTokenSchema
 );
-

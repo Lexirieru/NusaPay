@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-export const checkSession = (req: Request, res: Response, next: NextFunction) => {
+export const checkSession = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const token = req.cookies?.user_session;
 
   if (!token) {
@@ -12,6 +16,8 @@ export const checkSession = (req: Request, res: Response, next: NextFunction) =>
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       id: string;
       email: string;
+      companyName?: string;
+      profilePicture?: string;
     };
 
     // Simpan data user hasil decode ke request

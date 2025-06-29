@@ -1,10 +1,9 @@
-import { createSignature } from "./generate_signature";
+import { createSignature } from "../../utils/generate_signature";
 import axios from "axios";
 import { ethers } from "ethers";
-import usdcABI from "../abi/usdcABI.json"; // ABI ERC20
-import erc20ABI from "../abi/erc20ABI.json"; // ABI ERC20
-import { recordTransactionToDB } from "../controllers/transactionController";
-
+import usdcABI from "../../abi/usdcABI.json"; // ABI ERC20
+import erc20ABI from "../../abi/erc20ABI.json"; // ABI ERC20
+import { recordTransactionToDB } from "../../controllers/transactionController";
 // const apiKey = process.env.IDRX_API_KEY;
 // const secret = process.env.IDRX_SECRET_KEY!;
 

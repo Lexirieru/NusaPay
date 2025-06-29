@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, response } from "express";
 import { PayrollModel, PayrollDetailModel } from "../models/payrollModel"; // Pastikan path-nya benar
 import { TransactionRecordModel } from "../models/transactionRecordModel";
 import mongoose from "mongoose";
@@ -36,23 +36,30 @@ export async function loadTransactionStatusData(req: Request, res: Response) {
 
   try {
     // Ambil 5 data terbaru berdasarkan timestamp (atau bisa juga pakai _id)
-    const latestPayrolls = await TransactionRecordModel.find({ txHash })
-      .sort({ timestamp: -1 }) // descending (terbaru di atas)
-      .limit(5)
-      .lean(); // supaya hasilnya plain JS object dan lebih cepat
+    const latestPayrolls = await TransactionRecordModel.findOne({ txHash })
 
-    // try {
-    //   // const response = await axios.get(
-    //   //   `https://idrx.co/api/transaction/user-transaction-history transactionType=DEPOSIT_REDEEM&txHash=${txHash}&page=1&take=1`
-    //   // );
-    //   // res.status(201).json({
-    //   //   status: response.records[0].status,
-    //   // });
-
-    //   console.log("[API Response]", response.data);
-    // } catch (err) {
-    //   console.error("[Failed to call redeem-request]", err);
-    // }
+    try {
+      const response = await axios.get(
+        `https://idrx.co/api/transaction/user-transaction-history?transactionType=DEPOSIT_REDEEM&txHash=${txHash}&page=1&take=1`
+      );
+      if (!response.data) {
+        res.status(400).json({
+          status: response.data.records[0].status,
+        });
+      } else {
+        console.log(response);
+        console.log("[API Response]", response.data);
+        res.status(201).json({
+          status: response.data.records[0].status,
+        });
+      }
+    } catch (err: any) {
+      console.error("[Failed to call redeem-request]", err);
+      res.status(500).json({
+        message: "Error fetching transaction status from IDRX",
+        err: err.message,
+      });
+    }
 
     res.status(200).json({
       message: "Successfully fetched latest payrolls",

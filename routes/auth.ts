@@ -53,7 +53,8 @@ passport.use(
           const newCompany = await CompanyDataModel.create({
             companyId: profile.id,
             email: profile.emails?.[0]?.value,
-            // companyName: profile.displayName,
+            companyName: profile.displayName,
+            profilePicture: profile.photos?.[0]?.value || "",
           });
           return done(null, newCompany);
         }
@@ -74,10 +75,12 @@ passport.deserializeUser((user, done) => {
 
 router.get("/me", checkSession, async (req, res) => {
   const user = req.user as any;
-  console.log(user);
+  console.log("user", user);
   const payload = {
     _id: user.id?.toString(),
     email: user.email,
+    name: user.companyName || user.name || user.displayName,
+    profilePicture: user.profilePicture || "",
   };
   // console.log("Payload being sent to frontend:", payload);
   res.json(payload);
