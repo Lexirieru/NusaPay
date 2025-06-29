@@ -85,17 +85,17 @@ export const fetchCurrentUser = async () => {
 // FUNGSI API
 // =====================
 
-export const addInvoiceData = async (
-  payload: InvoiceCreationPayload
-): Promise<any> => {
-  const response = await api.post("/addInvoiceData", payload);
-  console.log(payload)
-  return response.data;
-};
+// export const addInvoiceData = async (
+//   payload: InvoiceCreationPayload
+// ): Promise<any> => {
+//   const response = await api.post("/addInvoiceData", payload);
+//   console.log(payload)
+//   return response.data;
+// };
 
 export const loadInvoiceData = async (
-  payload: string
-): Promise<Invoice> => {
+  payload: { txId: string }
+): Promise<any> => {
   const response = await api.post("/loadInvoiceData", payload);
   console.log(payload)
   return response.data;

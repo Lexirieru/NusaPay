@@ -18,14 +18,17 @@ export default function InvoicePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string|null>(null)
   const [currentRecipientIndex, setCurrentRecipientIndex] = useState(0)
-
+  console.log("NGENTOD")
   useEffect(() => {
     const fetchInvoice = async () =>{
       try{
         setLoading(true)
         setError(null)
-        const invoiceData = await loadInvoiceData(invoiceId);
-        setInvoice(invoiceData)
+        const invoiceData = await loadInvoiceData({txId : invoiceId});
+        // const invoiceData = await invoiceApi.getById(invoiceId)
+        console.log(invoiceData.data)
+        setInvoice(invoiceData.data)
+        
       } catch(err){
         setError(err instanceof Error? err.message: "Failed to load invoice")
         console.error("Error fetching invoice: ", err)
@@ -47,17 +50,17 @@ export default function InvoicePage() {
     window.location.reload()
   }
 
-  const handlePrevRecipient = () => {
-    if(invoice && currentRecipientIndex > 0){
-      setCurrentRecipientIndex(currentRecipientIndex - 1)
-    }
-  }
+  // const handlePrevRecipient = () => {
+  //   if(invoice && currentRecipientIndex > 0){
+  //     setCurrentRecipientIndex(currentRecipientIndex - 1)
+  //   }
+  // }
 
-  const handleNextRecipient = () => {
-    if(invoice && currentRecipientIndex < invoice.recipients.length-1){
-      setCurrentRecipientIndex(currentRecipientIndex + 1)
-    }
-  }
+  // const handleNextRecipient = () => {
+  //   if(invoice && currentRecipientIndex < invoice.recipients.length-1){
+  //     setCurrentRecipientIndex(currentRecipientIndex + 1)
+  //   }
+  // }
 
   if(loading){
     return(
@@ -83,8 +86,25 @@ export default function InvoicePage() {
       </div>
     )
   }
+  console.log(invoice)
+  console.log(invoice.recipient)
+  // if (!invoice.recipients) {
+  //   return (
+  //       <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
+  //         <div className="text-center">
+  //           <h2 className="text-xl font-bold mb-4">Invoice Loaded</h2>
+  //           <p className="text-gray-400 mb-6">This invoice does not contain any recipients.</p>
+  //           <Button onClick={handleBackToDashboard} variant="outline" className="bg-transparent">
+  //             <ArrowLeft className="w-4 h-4 mr-2" />
+  //             Back to Dashboard
+  //           </Button>
+  //         </div>
+  //       </div>
+  //     );
+  // }
+ 
 
-  const currentRecipient = invoice.recipients[currentRecipientIndex]
+  // const currentRecipient = invoice.recipients[currentRecipientIndex]
   const description = `Transfer to ${invoice.templateName}`
 
   return (
@@ -102,22 +122,23 @@ export default function InvoicePage() {
         <h3 className="font-bold text-base sm:text-lg mb-5">Beneficiary</h3>
         <div className="flex items-center gap-4 mb-8">
           <div className="bg-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center" >
-            <span className="text-white font-bold text-lg">{currentRecipient.name.charAt(0)}</span>
+            {/* <span className="text-white font-bold text-lg">{currentRecipient.name.charAt(0)}</span> */}
+            <span className="text-white font-bold text-lg">{invoice.recipient.charAt(0)}</span>
           </div>
           <p className="font-semibold text-sm">
-              {currentRecipient.name}
+              {invoice.recipient}
           </p>
-          <span className="ml-auto bg-[#373737] text-[10px] sm:text-xs px-6 sm:px-8 py-1.5 rounded-full">
-            {currentRecipient.currency}
-          </span>
+          {/* <span className="ml-auto bg-[#373737] text-[10px] sm:text-xs px-6 sm:px-8 py-1.5 rounded-full">
+            {invoice.currency}
+          </span> */}
         </div>
 
 
         {[
-          { label: "Currency", value: currentRecipient.currency },
-          { label: "Local Currency", value: currentRecipient.localCurrency },
-          { label: "Bank", value: currentRecipient.bankAccountName },
-          { label: "Bank Account", value: currentRecipient.bankAccount },
+          // { label: "Currency", value: currentRecipient.currency },
+          // { label: "Local Currency", value: currentRecipient.localCurrency },
+          // { label: "Bank", value: currentRecipient.bankAccountName },
+          // { label: "Bank Account", value: currentRecipient.bankAccount },
         ].map(({ label, value }) => (
           <div key={label} className="mb-2">
             <label className="text-white text-[10px] sm:text-xs mb-1 block">{label}</label>
@@ -129,18 +150,18 @@ export default function InvoicePage() {
 
         <div className="mt-10">
           <div className="flex justify-between text-[11px] sm:text-xs bg-white rounded-full px-4 py-1.5">
-            <button 
+            {/* <button 
               onClick={handlePrevRecipient} 
               disabled={currentRecipientIndex === 0} 
               className={`text-black rounded-full ${currentRecipientIndex === 0? "opacity-50 cursor-not-allowed" : "hover:opacity-70"}`}
             >
               &larr; Prev
-            </button>
-            <span className="text-black">({currentRecipientIndex + 1} / {invoice.recipients.length})</span>
-            <button 
+            </button> */}
+            {/* <span className="text-black">({currentRecipientIndex + 1} / {invoice.recipients.length})</span> */}
+            {/* <button 
               onClick={handleNextRecipient}
               disabled={currentRecipientIndex === invoice.recipients.length - 1}
-              className={`text-black rounded-full ${currentRecipientIndex === invoice.recipients.length -1? "opacity-50 cursor-not-allowed" : "hover:opacity-70"}`}>Next &rarr;</button>
+              className={`text-black rounded-full ${currentRecipientIndex === invoice.recipients.length -1? "opacity-50 cursor-not-allowed" : "hover:opacity-70"}`}>Next &rarr;</button> */}
           </div>
         </div>
       </div>
@@ -152,7 +173,7 @@ export default function InvoicePage() {
           <Image src="/logonusa2.png" alt="logo" width={100} height={40} />
           <div className="flex gap-6 text-[10px] items-center text-gray-400">
             {[
-              { label: "Invoice Number", value: invoiceId },
+              { label: "Invoice Number", value: invoice.txId},
               { label: "Issued", value: new Date(invoice.createdAt).toLocaleDateString() },
               { label: "Due Date", value: new Date(invoice.completedAt || invoice.createdAt).toLocaleDateString() },
             ].map(({ label, value }) => (
@@ -168,7 +189,8 @@ export default function InvoicePage() {
         <div className="flex flex-col sm:flex-row gap-4 mt-4">
           {[
             { title: "↑ From", name: "NusaPay", label: "Currency", value: "USD" },
-            { title: "↓ To", name: currentRecipient.name, label: "Local Currency", value: currentRecipient.localCurrency },
+            // { title: "↓ To", name: invoice.recipients, label: "Local Currency", value: currentRecipient.localCurrency },
+            { title: "↓ To", name: invoice.recipient, label: "Local Currency"},
           ].map(({ title, name, label, value }) => (
             <div key={title} className="w-full sm:w-1/2 bg-[#1C1C1C] rounded-2xl px-4 py-4">
               <p className="text-[10px] sm:text-xs bg-[#2A2A2A] rounded-full px-4 py-1 w-fit text-white">
@@ -202,7 +224,7 @@ export default function InvoicePage() {
           {/* Description */}
           <div className="flex justify-between mt-2 text-xs font-medium border-b border-white/55 pb-1 px-2 sm:px-8">
             {/* <p className="text-white">• {description}</p> */}
-            <p className="text-white">{currentRecipient.amountTransfer.toLocaleString()}</p>
+            <p className="text-white">{invoice.amount.toLocaleString()}</p>
           </div>
 
           {/* SPLIT PAYMENT INFO */}

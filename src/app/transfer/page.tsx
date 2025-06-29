@@ -19,7 +19,7 @@ import {
 import type { Template } from "@/lib/template"
 import { AlertDialogDescription } from "@radix-ui/react-alert-dialog"
 import ProcessingModal from "@/components/modals/ProcessLoading"
-import { addGroupName, addInvoiceData, deleteEmployeeData, editEmployeeData, loadEmployeeData, loadGroupName } from "@/api"
+import { addGroupName, deleteEmployeeData, editEmployeeData, loadEmployeeData, loadGroupName } from "@/api"
 import { TemplateProvider, useTemplate } from "@/lib/TemplateContext"
 import { UserProvider, useUser } from "@/lib/UserContext"
 import { useRouter } from "next/navigation"
@@ -198,6 +198,7 @@ export default function Dashboard() {
 
     try{
       const creationPayload = {
+        txId: "123",
         companyId: user._id,
         templateName: currentTemplate.nameOfGroup,
         recipients: currentTemplate.recipients.map(r =>({
@@ -205,8 +206,9 @@ export default function Dashboard() {
           amount: r.amountTransfer,
         }))
       }
-      const newInvoice = await addInvoiceData(creationPayload);
-      setNewlyCreatedInvoiceId(newInvoice._id)
+      
+      // const newInvoice = await addInvoiceData(creationPayload);
+      // setNewlyCreatedInvoiceId(newInvoice._id)
     }catch (err){
       console.error("Failed to create invoice: ", err)
       setShowProcessingModal(false)
@@ -216,9 +218,11 @@ export default function Dashboard() {
 
   const handleProcessingComplete = () =>{
     setShowProcessingModal(false)
-    if(newlyCreatedInvoiceId){
-      router.push(`/invoice/${newlyCreatedInvoiceId}`)
-    }
+    // if(newlyCreatedInvoiceId){
+    //   router.push(`/invoice/${newlyCreatedInvoiceId}`)
+    // }
+    router.push(`/invoice/32424141321`)
+
   }
   return (
     

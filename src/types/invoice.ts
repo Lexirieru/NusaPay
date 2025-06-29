@@ -25,13 +25,15 @@ export type InvoiceStatus =
  */
 export interface Invoice {
   _id: string; // ID unik dari database (MongoDB)
+  txId : string;
   invoiceNumber: string; // Nomor invoice yang mudah dibaca (e.g., INV-2025-001)
   companyId: string; // ID perusahaan yang membuat invoice
   templateName: string; // Nama template/grup pembayaran
-  recipients: Recipient[]; // Daftar penerima yang termasuk dalam invoice ini
+//   recipients: Recipient[]; // Daftar penerima yang termasuk dalam invoice ini
+  recipient: string; // Daftar penerima yang termasuk dalam invoice ini
   
   // Rincian Biaya
-  totalAmount: number; // Total jumlah yang ditransfer ke semua penerima
+  amount: number; // Total jumlah yang ditransfer ke semua penerima
   networkFee: number; // Biaya jaringan blockchain (jika ada)
   adminFee: number; // Biaya administrasi platform
   totalCost: number; // totalAmount + networkFee + adminFee
@@ -70,12 +72,13 @@ export interface InvoiceSummary {
  * untuk membuat sebuah invoice baru.
  */
 export interface InvoiceCreationPayload {
-  companyId: string;
-  templateName: string;
+    txId:string;
+    companyId: string;
+    templateName: string;
   // Daripada mengirim semua detail, frontend cukup mengirim ID karyawan
   // dan jumlahnya. Backend akan mengambil detail lain dari database.
   // Ini lebih aman dan efisien.
-  recipients: {
+recipients: {
     employeeId: string; // ID dari data Employee
     amount: number; // Jumlah yang akan ditransfer
   }[];
