@@ -1,11 +1,91 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { Button } from "@/components/ui/button";
+import { ErrorMessage } from "@/components/ui/error-message";
+import { ArrowLeft } from "lucide-react";
+import type { Invoice } from "@/types/invoice";
+import { useState, useEffect } from "react";
+import { invoiceApi } from "@/lib/invoiceApi";
 export default function InvoicePage() {
-  const { invoiceId } = useParams();
-  const description = "employee salaries";
+  const params = useParams();
+  const router = useRouter()
+  const invoiceId = params.invoiceId as string
+  const [invoice, setInvoice] = useState<Invoice|null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string|null>(null)
+  const [currentRecipientIndex, setCurrentRecipientIndex] = useState(0)
+
+  useEffect(() => {
+    const fetchInvoice = async () =>{
+      try{
+        setLoading(true)
+        setError(null)
+
+        const invoiceData = await invoiceApi.getById(invoiceId)
+        setInvoice(invoiceData)
+      } catch(err){
+        setError(err instanceof Error? err.message: "Failed to load invoice")
+        console.error("Error fetching invoice: ", err)
+      }finally{
+        setLoading(false)
+      }
+    }
+
+    if(invoiceId){
+      fetchInvoice()
+    }
+  }, [invoiceId])
+
+  const handleBackToDashboard = () =>{
+    router.push("/")
+  }
+
+  const handleRetry = () =>{
+    window.location.reload()
+  }
+
+  const handlePrevRecipient = () => {
+    if(invoice && currentRecipientIndex > 0){
+      setCurrentRecipientIndex(currentRecipientIndex - 1)
+    }
+  }
+
+  const handleNextRecipient = () => {
+    if(invoice && currentRecipientIndex < invoice.recipients.length-1){
+      setCurrentRecipientIndex(currentRecipientIndex + 1)
+    }
+  }
+
+  if(loading){
+    return(
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="lg" className="mb-4" />
+          <p className="text-gray-300">Loading invoice...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if(error || !invoice){
+    return(
+      <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
+        <div className="max-w-md w-full">
+          <ErrorMessage message={error || "Invoice not found"} onRetry={handleRetry} className="mb-4" />
+          <Button onClick={handleBackToDashboard} variant="outline" className="w-full bg-transparent">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  const currentRecipient = invoice.recipients[currentRecipientIndex]
+  const description = `Transfer to ${invoice.templateName}`
 
   return (
   <div className="min-h-screen bg-black px-4 sm:px-6 py-8 sm:py-10 text-white">
@@ -15,27 +95,29 @@ export default function InvoicePage() {
       <div className="bg-[#1C1C1C] rounded-2xl px-6 sm:px-8 py-7 sm:py-9 w-full lg:w-[40%]">
         <div className="flex justify-between items-center mb-4">
           <Image src="/logonusa2.png" alt="logo" width={120} height={50} />
-          <button className="bg-[#373737] text-xs sm:text-sm px-4 sm:px-6 py-1 rounded-full">
+          <button onClick={handleBackToDashboard} className="bg-[#373737] text-xs sm:text-sm px-4 sm:px-6 py-1 rounded-full">
             Dashboard
           </button>
         </div>
         <h3 className="font-bold text-base sm:text-lg mb-5">Beneficiary</h3>
         <div className="flex items-center gap-4 mb-8">
-          <div className="bg-white w-10 h-10 sm:w-12 sm:h-12 rounded-full" />
-          <div>
-            <p className="font-semibold text-sm">Raditya Azhar</p>
-            <p className="text-[10px] sm:text-xs font-semibold text-[#818181]">Indonesia</p>
+          <div className="bg-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center" >
+            <span className="text-white font-bold text-lg">{currentRecipient.name.charAt(0)}</span>
           </div>
+          <p className="font-semibold text-sm">
+              {currentRecipient.name}
+          </p>
           <span className="ml-auto bg-[#373737] text-[10px] sm:text-xs px-6 sm:px-8 py-1.5 rounded-full">
-            IDR
+            {currentRecipient.currency}
           </span>
         </div>
 
+
         {[
-          { label: "Currency", value: "USD" },
-          { label: "Local Currency", value: "IDR" },
-          { label: "Bank", value: "Bank Negara Indonesia" },
-          { label: "Bank Account", value: "124245982" },
+          { label: "Currency", value: currentRecipient.currency },
+          { label: "Local Currency", value: currentRecipient.localCurrency },
+          { label: "Bank", value: currentRecipient.bankAccountName },
+          { label: "Bank Account", value: currentRecipient.bankAccount },
         ].map(({ label, value }) => (
           <div key={label} className="mb-2">
             <label className="text-white text-[10px] sm:text-xs mb-1 block">{label}</label>
@@ -47,9 +129,18 @@ export default function InvoicePage() {
 
         <div className="mt-10">
           <div className="flex justify-between text-[11px] sm:text-xs bg-white rounded-full px-4 py-1.5">
-            <button className="text-black rounded-full">&larr; Prev</button>
-            <span className="text-black">(2/16)</span>
-            <button className="text-black rounded-full">Next &rarr;</button>
+            <button 
+              onClick={handlePrevRecipient} 
+              disabled={currentRecipientIndex === 0} 
+              className={`text-black rounded-full ${currentRecipientIndex === 0? "opacity-50 cursor-not-allowed" : "hover:opacity-70"}`}
+            >
+              &larr; Prev
+            </button>
+            <span className="text-black">({currentRecipientIndex + 1} / {invoice.recipients.length})</span>
+            <button 
+              onClick={handleNextRecipient}
+              disabled={currentRecipientIndex === invoice.recipients.length - 1}
+              className={`text-black rounded-full ${currentRecipientIndex === invoice.recipients.length -1? "opacity-50 cursor-not-allowed" : "hover:opacity-70"}`}>Next &rarr;</button>
           </div>
         </div>
       </div>
@@ -62,8 +153,8 @@ export default function InvoicePage() {
           <div className="flex gap-6 text-[10px] items-center text-gray-400">
             {[
               { label: "Invoice Number", value: invoiceId },
-              { label: "Issued", value: "01/6/2025" },
-              { label: "Due Date", value: "26/6/2025" },
+              { label: "Issued", value: new Date(invoice.createdAt).toLocaleDateString() },
+              { label: "Due Date", value: new Date(invoice.completedAt || invoice.createdAt).toLocaleDateString() },
             ].map(({ label, value }) => (
               <p key={label} className="flex flex-col">
                 {label}
@@ -77,7 +168,7 @@ export default function InvoicePage() {
         <div className="flex flex-col sm:flex-row gap-4 mt-4">
           {[
             { title: "↑ From", name: "NusaPay", label: "Currency", value: "USD" },
-            { title: "↓ To", name: "Raditya Azhar A.", label: "Local Currency", value: "IDR" },
+            { title: "↓ To", name: currentRecipient.name, label: "Local Currency", value: currentRecipient.localCurrency },
           ].map(({ title, name, label, value }) => (
             <div key={title} className="w-full sm:w-1/2 bg-[#1C1C1C] rounded-2xl px-4 py-4">
               <p className="text-[10px] sm:text-xs bg-[#2A2A2A] rounded-full px-4 py-1 w-fit text-white">
@@ -110,8 +201,8 @@ export default function InvoicePage() {
 
           {/* Description */}
           <div className="flex justify-between mt-2 text-xs font-medium border-b border-white/55 pb-1 px-2 sm:px-8">
-            <p className="text-white">• {description}</p>
-            <p className="text-white">1000.00</p>
+            {/* <p className="text-white">• {description}</p> */}
+            <p className="text-white">{currentRecipient.amountTransfer.toLocaleString()}</p>
           </div>
 
           {/* SPLIT PAYMENT INFO */}
@@ -144,8 +235,7 @@ export default function InvoicePage() {
               <div>
                 <p className="text-[10px] sm:text-xs text-gray-400">Wallet Address</p>
                 <div className="bg-[#2A2A2A] rounded-full px-4 py-1.5 text-xs sm:text-sm break-all mt-1">
-                  0x15E0B363b5aB5e47624Bc...
-                </div>
+                  {invoice.batchTransactionId}                </div>
               </div>
             </div>
           </div>
@@ -153,6 +243,4 @@ export default function InvoicePage() {
       </div>
     </div>
   </div>
-);
-
-}
+)}
