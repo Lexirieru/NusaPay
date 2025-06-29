@@ -117,7 +117,7 @@ router.get(
         maxAge: 30 * 24 * 60 * 60 * 1000, // 1 hari
       });
 
-      res.redirect(`${process.env.FRONTEND_URL}/`);
+      res.redirect(`${process.env.FRONTEND_URL}/transfer`);
     } else {
       res.redirect(`${process.env.FRONTEND_URL}/auth/error`);
     }
