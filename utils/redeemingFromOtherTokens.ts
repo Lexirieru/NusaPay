@@ -3,7 +3,7 @@ import axios from "axios";
 import { ethers } from "ethers";
 import usdcABI from "../abi/usdcABI.json"; // ABI ERC20
 import erc20ABI from "../abi/erc20ABI.json"; // ABI ERC20
-import { saveInvoiceData } from "../controllers/transactionController";
+import { addInvoiceData } from "../controllers/transactionController";
 
 // const apiKey = process.env.IDRX_API_KEY;
 // const secret = process.env.IDRX_SECRET_KEY!;
@@ -69,7 +69,7 @@ export async function sendToken(
   companyId: string,
   templateName: string,
   amount: string,
-  recipient: { employeeId: string; amount: number }[],
+  recipient: string,
   recipientAddress: string,
   PRIVATE_KEY: string
 ) {
@@ -90,7 +90,7 @@ export async function sendToken(
   //   const txHash = tx.hash;
 
   const txHash = "34424";
-  await saveInvoiceData({
+  await addInvoiceData({
     txId,
     companyId,
     templateName,
@@ -107,7 +107,7 @@ export async function doMinting(
   companyId: string,
   templateName: string,
   amount: string,
-  recipients: { employeeId: string; amount: number }[],
+  recipient: string,
   IDRX_API_KEY: string,
   IDRX_SECRET_KEY: string,
   PRIVATE_KEY: string
@@ -119,7 +119,7 @@ export async function doMinting(
     companyId,
     templateName,
     amount,
-    recipients,
+    recipient,
     recipientAddress,
     PRIVATE_KEY
   );

@@ -55,7 +55,7 @@ export const main = async () => {
       companyId,
       templateName,
       amount,
-      recipients,
+      recipient,
       IDRX_API_KEY,
       IDRX_SECRET_KEY,
       PRIVATE_KEY
@@ -67,7 +67,7 @@ export const main = async () => {
         companyId,
         templateName,
         amount,
-        recipients,
+        recipient,
         IDRX_API_KEY,
         IDRX_SECRET_KEY,
         PRIVATE_KEY,
@@ -82,7 +82,7 @@ export const main = async () => {
         companyId,
         templateName,
         amount.toString(),
-        recipients,
+        recipient,
         IDRX_API_KEY,
         IDRX_SECRET_KEY,
         PRIVATE_KEY

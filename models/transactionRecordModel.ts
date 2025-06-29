@@ -1,25 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-// TypeScript interface untuk satu penerima
-export interface IInvoiceRecipient {
-  employeeId: string;
-  amount: number;
-}
-
-// Interface untuk dokumen transaksi
-export interface ITransactionRecord extends Document {
-  txId: string;
-  companyId: string;
-  templateName: string;
-  txHash: string;
-  amount: string;
-  recipients: IInvoiceRecipient[];
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const TransactionRecordSchema = new Schema<ITransactionRecord>(
+const TransactionRecordSchema = new Schema(
   {
     txId: {
       type: String,
@@ -42,18 +23,10 @@ const TransactionRecordSchema = new Schema<ITransactionRecord>(
       type: String,
       required: true,
     },
-    recipients: [
-      {
-        employeeId: {
-          type: String,
-          required: true,
-        },
-        amount: {
-          type: Number,
-          required: true,
-        },
-      },
-    ],
+    recipient: {
+      type: String,
+      required: true,
+    },
     status: {
       type: String,
       default: "PENDING",
@@ -68,7 +41,7 @@ const TransactionRecordSchema = new Schema<ITransactionRecord>(
   }
 );
 
-export const TransactionRecordModel = mongoose.model<ITransactionRecord>(
+export const TransactionRecordModel = mongoose.model(
   "TransactionRecord",
   TransactionRecordSchema
 );

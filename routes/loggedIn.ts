@@ -6,7 +6,6 @@ import {
   addPayrollDetailsData,
   loadPayrollData,
   loadPayrollDetailsData,
-  loadTransactionStatusData,
   loadInvoiceData,
 } from "../controllers/transactionController";
 

@@ -6,7 +6,7 @@ import axios from "axios";
 
 // dari sc pas nge emitnya harus ada data data ini sehingga
 // ntar mbuat invoicenya ga dari fe tapi dari listening eventnya SC
-export async function saveInvoiceData({
+export async function addInvoiceData({
   txId,
   companyId,
   templateName,
@@ -17,7 +17,7 @@ export async function saveInvoiceData({
   txId: string;
   companyId: string;
   templateName: string;
-  recipient: { employeeId: string; amount: number }[];
+  recipient: string;
   txHash: string;
   amount: number;
 }) {
