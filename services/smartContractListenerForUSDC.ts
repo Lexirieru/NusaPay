@@ -52,6 +52,7 @@ export const main = async () => {
     "PayrollApproved",
     async (
       txId,
+      userId,
       companyId,
       templateName,
       amount,
@@ -64,6 +65,7 @@ export const main = async () => {
 
       console.log({
         txId,
+        userId,
         companyId,
         templateName,
         amount,
@@ -79,6 +81,7 @@ export const main = async () => {
       // idrx secret key, dan private key wallet di payloadnya
       await doMinting(
         txId,
+        userId,
         companyId,
         templateName,
         amount.toString(),

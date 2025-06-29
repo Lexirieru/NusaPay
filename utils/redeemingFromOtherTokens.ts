@@ -66,6 +66,7 @@ export async function getBankAccounts(apiKey: string, secret: string) {
 
 export async function sendToken(
   txId: string,
+  userId: string,
   companyId: string,
   templateName: string,
   amount: string,
@@ -92,6 +93,7 @@ export async function sendToken(
   const txHash = "34424";
   await addInvoiceData({
     txId,
+    userId,
     companyId,
     templateName,
     txHash,
@@ -104,6 +106,7 @@ export async function sendToken(
 
 export async function doMinting(
   txId: string,
+  userId: string,
   companyId: string,
   templateName: string,
   amount: string,
@@ -116,6 +119,7 @@ export async function doMinting(
   console.log(recipientAddress);
   await sendToken(
     txId,
+    userId,
     companyId,
     templateName,
     amount,

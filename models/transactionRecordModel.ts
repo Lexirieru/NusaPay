@@ -7,6 +7,10 @@ const TransactionRecordSchema = new Schema(
       required: true,
       unique: true,
     },
+    userId: {
+      type: String,
+      required: true,
+    },
     companyId: {
       type: String,
       required: true,

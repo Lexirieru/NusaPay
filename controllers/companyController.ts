@@ -36,7 +36,6 @@ export async function addOrUpdateCompanyData(req: Request, res: Response) {
   }
 }
 
-
 export async function addEmployeeDataToGroup(req: Request, res: Response) {
   // bankCode dari FE harus bisa nge enum sesuai dengan bankAccountnya
   const {
@@ -51,7 +50,7 @@ export async function addEmployeeDataToGroup(req: Request, res: Response) {
     amountTransfer,
     currency,
     localCurrency,
-    groupId
+    groupId,
   } = req.body;
 
   try {
@@ -67,13 +66,13 @@ export async function addEmployeeDataToGroup(req: Request, res: Response) {
       amountTransfer,
       currency,
       localCurrency,
-      groupId
+      groupId,
     });
 
     const saved = await newEmployeeData.save();
-  
+
     const updatedGroup = await GroupOfEmployeeData.findOneAndUpdate(
-      {groupId},
+      { groupId },
       {
         $push: {
           employees: {
@@ -87,17 +86,15 @@ export async function addEmployeeDataToGroup(req: Request, res: Response) {
     );
 
     if (!updatedGroup) {
-       res.status(404).json({
+      res.status(404).json({
         message: "Group not found. Make sure the nameOfGroup is correct.",
       });
-    }
-    else{
+    } else {
       res.status(201).json({
         message: "Employee data successfully added",
         payroll: saved,
       });
     }
-
   } catch (err: any) {
     res.status(500).json({
       message: "Error adding employee data",
@@ -106,7 +103,7 @@ export async function addEmployeeDataToGroup(req: Request, res: Response) {
   }
 }
 export async function loadEmployeeDataFromGroup(req: Request, res: Response) {
-  const { groupId, } = req.body;
+  const { groupId } = req.body;
 
   try {
     const latestGroupOfEmployee = await EmployeeModel.find({
@@ -114,7 +111,7 @@ export async function loadEmployeeDataFromGroup(req: Request, res: Response) {
     })
       .sort({ timestamp: -1 }) // descending (terbaru di atas)
       .lean(); // supaya hasilnya plain JS object dan lebih cepat
-    console.log()
+    console.log();
     res.status(201).json({
       message: "Group of employee successfully sended",
       data: latestGroupOfEmployee,
@@ -134,7 +131,7 @@ export async function editEmployeeDataFromGroup(req: Request, res: Response) {
     bankAccountName,
     amountTransfer,
     currency,
-    localCurrency
+    localCurrency,
   } = req.body;
 
   try {
@@ -146,7 +143,7 @@ export async function editEmployeeDataFromGroup(req: Request, res: Response) {
         bankAccountName,
         amountTransfer,
         currency,
-        localCurrency
+        localCurrency,
       },
       { new: true }
     );
@@ -170,9 +167,7 @@ export async function editEmployeeDataFromGroup(req: Request, res: Response) {
 }
 // nek ada yang di delete ntar masuknya juga ke handler editEmployeeData ini
 export async function deleteEmployeeDataFromGroup(req: Request, res: Response) {
-  const {
-    id,
-  } = req.body;
+  const { id } = req.body;
   const _id = new mongoose.Types.ObjectId(id);
   try {
     const employeeData = await EmployeeModel.findByIdAndDelete(_id);
@@ -195,9 +190,6 @@ export async function deleteEmployeeDataFromGroup(req: Request, res: Response) {
   }
 }
 
-
-
-
 export async function addGroupName(req: Request, res: Response) {
   const { companyId, companyName, nameOfGroup, groupId } = req.body;
 
@@ -207,7 +199,7 @@ export async function addGroupName(req: Request, res: Response) {
       companyId,
       companyName,
       nameOfGroup,
-      groupId
+      groupId,
     });
 
     const saved = await newGroupOfEmployee.save();
@@ -226,8 +218,8 @@ export async function addGroupName(req: Request, res: Response) {
 export async function checkWalletAddressStatus(req: Request, res: Response) {
   const { companyId } = req.body;
   try {
-    const companyData = await CompanyDataModel.findOne({companyId})
-    if(!companyData){
+    const companyData = await CompanyDataModel.findOne({ companyId });
+    if (!companyData) {
       res.status(404).json({
         message: "Company data not found",
         data: false,
@@ -245,7 +237,6 @@ export async function checkWalletAddressStatus(req: Request, res: Response) {
       message: "Wallet address found",
       data: true,
     });
-
   } catch (err: any) {
     res.status(500).json({
       message: "Error checking wallet address status",
@@ -266,7 +257,7 @@ export async function loadGroupName(req: Request, res: Response) {
 
     res.status(201).json({
       message: "Group of employee successfully sended",
-      data : loadAllGroupName
+      data: loadAllGroupName,
     });
   } catch (err: any) {
     res.status(500).json({
@@ -295,13 +286,11 @@ export async function addOrEditGroupOfEmployee(req: Request, res: Response) {
         message: "Group of employee not found",
       });
     }
-    
+
     res.status(201).json({
       message: "Group of employee successfully edited",
     });
-  } 
-  
-  catch (err: any) {
+  } catch (err: any) {
     res.status(500).json({
       message: "Error editing group of employee",
       error: err.message,
@@ -413,4 +402,3 @@ export async function addOrUpdateCompanyStats(req: Request, res: Response) {
     });
   }
 }
-

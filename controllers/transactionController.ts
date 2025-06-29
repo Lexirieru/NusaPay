@@ -3,11 +3,13 @@ import { PayrollModel, PayrollDetailModel } from "../models/payrollModel"; // Pa
 import { TransactionRecordModel } from "../models/transactionRecordModel";
 import mongoose from "mongoose";
 import axios from "axios";
+import { EmployeeModel } from "../models/employeeModel";
 
 // dari sc pas nge emitnya harus ada data data ini sehingga
 // ntar mbuat invoicenya ga dari fe tapi dari listening eventnya SC
 export async function addInvoiceData({
   txId,
+  userId,
   companyId,
   templateName,
   txHash,
@@ -15,6 +17,7 @@ export async function addInvoiceData({
   recipient,
 }: {
   txId: string;
+  userId: string;
   companyId: string;
   templateName: string;
   recipient: string;
@@ -23,6 +26,7 @@ export async function addInvoiceData({
 }) {
   const newTx = new TransactionRecordModel({
     txId,
+    userId,
     companyId,
     templateName,
     recipient,
@@ -48,13 +52,29 @@ export async function loadInvoiceData(req: Request, res: Response) {
     } else {
       const latestStatus = await loadTransactionStatusData(invoice.txHash);
       invoice.status = latestStatus || "PENDING";
-
+      // baru data yang ada di invoice doang yang dikirim
       await invoice.save();
-
-      res.status(200).json({
-        message: "Successfully fetched latest invoices",
-        data: invoice,
-      });
+      const employeeData = await EmployeeModel.findById(invoice.userId);
+      if (!employeeData) {
+        res.status(404).json({
+          message: "Cant find data for this person",
+        }); // update recipient with employee name
+      } else {
+        const plainInvoice = invoice.toObject();
+        const dataToSend = {
+          ...plainInvoice,
+          currency: employeeData.currency,
+          localCurrency: employeeData.localCurrency,
+          bankAccountName: employeeData.bankAccountName,
+          bankAccount: employeeData.bankAccount,
+        };
+        console.log(dataToSend);
+        //
+        res.status(200).json({
+          message: "Successfully fetched latest invoices",
+          data: dataToSend,
+        });
+      }
     }
   } catch (err: any) {
     res.status(500).json({

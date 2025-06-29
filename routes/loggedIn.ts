@@ -39,7 +39,7 @@ const routes: RouteDefinition[] = [
   // Payroll data
 
   {
-    method: "get",
+    method: "post",
     path: "/loadInvoiceData",
     action: loadInvoiceData,
   },
