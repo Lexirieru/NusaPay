@@ -76,7 +76,7 @@ router.get("/me", checkSession, async (req, res) => {
     _id: user.id?.toString(),
     email: user.email,
   };
-  console.log("Payload being sent to frontend:", payload);
+  // console.log("Payload being sent to frontend:", payload);
   res.json(payload);
 });
 

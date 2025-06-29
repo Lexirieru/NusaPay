@@ -13,8 +13,10 @@ import passport from "passport";
 import authRoutes from "./routes/auth";
 import cookieParser from "cookie-parser"
 import { checkSession } from "./config/checkSession";
+import { main } from "./services/smartContractListenerForUSDC";
 const app = express();
 connectDB();
+
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:3000", // Ganti dengan URL frontend Anda
@@ -67,5 +69,6 @@ app.listen(PORT, () => {
   );
 });
 
+main()
+
 export default app;
-1;

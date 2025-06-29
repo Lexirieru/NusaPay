@@ -1,6 +1,35 @@
 import { Request, Response } from "express";
 import { PayrollModel, PayrollDetailModel } from "../models/payrollModel"; // Pastikan path-nya benar
+import { TransactionRecordModel } from "../models/transactionRecordModel";
 import mongoose from "mongoose";
+
+export async function recordTransactionToDB({
+  txId,
+  userId,
+  txHash,
+  recipient,
+  amount,
+}: {
+  txId: string;
+  userId: string;
+  txHash: string;
+  recipient: string;
+  amount: number;
+}) {
+  const newTx = new TransactionRecordModel({
+    txId,
+    userId,
+    txHash,
+    recipient,
+    amount,
+    status: "PENDING",
+  });
+
+  await newTx.save();
+  console.log(`✅ Transaction recorded to DB: ${txHash}`);
+}
+
+// buat controller untuk ngasih akses ke FE biar bisa akses status berdasarkan txIdnya 
 
 export async function addPayrollData(req: Request, res: Response) {
   const {
