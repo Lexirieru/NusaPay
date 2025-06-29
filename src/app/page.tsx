@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import ShinyText from "@/components/anim/ShinyText/ShinyText";
 export default function Homepage() {
   return (
     <div className="relative h-fit w-full overflow-hidden">
@@ -50,6 +51,7 @@ export default function Homepage() {
             }
           }}
         >
+          
           Transfer Now
         </button>
       </div>
