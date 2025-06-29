@@ -19,11 +19,16 @@ import {
 import type { Template } from "@/lib/template"
 import { AlertDialogDescription } from "@radix-ui/react-alert-dialog"
 import ProcessingModal from "@/components/modals/ProcessLoading"
-import { addGroupName, deleteEmployeeData, editEmployeeData, loadEmployeeData, loadGroupName } from "@/api"
+import { addGroupName, addInvoiceData, deleteEmployeeData, editEmployeeData, loadEmployeeData, loadGroupName } from "@/api"
 import { TemplateProvider, useTemplate } from "@/lib/TemplateContext"
 import { UserProvider, useUser } from "@/lib/UserContext"
+import { useRouter } from "next/navigation"
+import { invoiceApi } from "@/lib/invoiceApi"
 
 export default function Dashboard() {
+  const router = useRouter()
+  const { user, loading } = useUser();
+
   const [templates, setTemplates] = useState<Template[]>([])
   const [currentTemplate, setCurrentTemplate] = useState<Template | null>(null)  
 
@@ -32,10 +37,8 @@ export default function Dashboard() {
   const [showTemplateModal, setShowTemplateModal] = useState(false)
   const [showTransferAlert, setShowTransferAlert] = useState(false)
   const [showProcessingModal, setShowProcessingModal] = useState(false)
-  const [showInvoiceModal, setShowInvoiceModal] = useState(false)
-  const { user, loading } = useUser();
-
-
+  
+  const [newlyCreatedInvoiceId, setNewlyCreatedInvoiceId] = useState<string|null>(null)
 
   // Fetch all templates first
   useEffect(() => {
@@ -186,6 +189,37 @@ export default function Dashboard() {
       </div>
     );
   }
+
+  const handleConfirmTransfer = async () =>{
+    if(!currentTemplate || !user) return
+
+    setShowTransferAlert(false)
+    setShowProcessingModal(true)
+
+    try{
+      const creationPayload = {
+        companyId: user._id,
+        templateName: currentTemplate.nameOfGroup,
+        recipients: currentTemplate.recipients.map(r =>({
+          employeeId: r._id,
+          amount: r.amountTransfer,
+        }))
+      }
+      const newInvoice = await addInvoiceData(creationPayload);
+      setNewlyCreatedInvoiceId(newInvoice._id)
+    }catch (err){
+      console.error("Failed to create invoice: ", err)
+      setShowProcessingModal(false)
+      setNewlyCreatedInvoiceId(null)
+    }
+  }
+
+  const handleProcessingComplete = () =>{
+    setShowProcessingModal(false)
+    if(newlyCreatedInvoiceId){
+      router.push(`/invoice/${newlyCreatedInvoiceId}`)
+    }
+  }
   return (
     
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
@@ -238,10 +272,7 @@ export default function Dashboard() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="text-cyan-400">Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-cyan-400" onClick={() => {
-              setShowTransferAlert(false);
-              setShowProcessingModal(true);
-            }}>Confirm</AlertDialogAction>
+            <AlertDialogAction className="bg-cyan-400" onClick={handleConfirmTransfer}>Confirm</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -267,10 +298,7 @@ export default function Dashboard() {
       {showProcessingModal && currentTemplate && (
         <ProcessingModal
           recepientCount={currentTemplate.recipients.length}
-          onComplete={() => {
-            setShowProcessingModal(false);
-            setShowInvoiceModal(true);
-          }}
+          onComplete={handleProcessingComplete}
         />
       )}
     </div>

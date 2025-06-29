@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { LoadPayloadForGroupId, LoadPayloadWithCompanyId, Recipient } from "./types/recipient";
 import { Template } from "./lib/template";
+import { Invoice, InvoiceCreationPayload, InvoiceSummary } from "./types/invoice";
 // =====================
 // TIPE DATA
 // =====================
@@ -83,6 +84,22 @@ export const fetchCurrentUser = async () => {
 // =====================
 // FUNGSI API
 // =====================
+
+export const addInvoiceData = async (
+  payload: InvoiceCreationPayload
+): Promise<any> => {
+  const response = await api.post("/addInvoiceData", payload);
+  console.log(payload)
+  return response.data;
+};
+
+export const loadInvoiceData = async (
+  payload: string
+): Promise<Invoice> => {
+  const response = await api.post("/loadInvoiceData", payload);
+  console.log(payload)
+  return response.data;
+};
 
 export const addEmployeeData = async (
   payload: AddEmployeePayload

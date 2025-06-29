@@ -1,7 +1,7 @@
 
 
-import { Invoice } from "@/types/invoice"
 import { api } from "@/api"
+import { Invoice, InvoiceCreationPayload, InvoiceSummary } from "@/types/invoice"
 
 export interface ApiResponse<T> {
   success: boolean
@@ -90,5 +90,13 @@ export const invoiceApi = {
     getAll: async() : Promise<Invoice[]> =>{
         const response = await apiRequest<ApiResponse<Invoice[]>> ("/invoices")
         return response.data || []
-    }
+    },
+    
+    create: async (payload: InvoiceCreationPayload): Promise<Invoice> => {
+    const response = await apiRequest<Invoice>("/invoices/create", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    return response;
+  },
 }

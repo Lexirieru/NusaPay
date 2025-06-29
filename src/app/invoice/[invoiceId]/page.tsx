@@ -9,6 +9,7 @@ import { ArrowLeft } from "lucide-react";
 import type { Invoice } from "@/types/invoice";
 import { useState, useEffect } from "react";
 import { invoiceApi } from "@/lib/invoiceApi";
+import { loadInvoiceData } from "@/api";
 export default function InvoicePage() {
   const params = useParams();
   const router = useRouter()
@@ -23,8 +24,7 @@ export default function InvoicePage() {
       try{
         setLoading(true)
         setError(null)
-
-        const invoiceData = await invoiceApi.getById(invoiceId)
+        const invoiceData = await loadInvoiceData(invoiceId);
         setInvoice(invoiceData)
       } catch(err){
         setError(err instanceof Error? err.message: "Failed to load invoice")
